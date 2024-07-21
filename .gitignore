@@ -1,0 +1,6 @@
+# ignore vim files
+**/*.swp
+**/*.swo
+tmp
+uar
+upsilon-alert-receiver
