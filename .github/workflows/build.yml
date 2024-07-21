@@ -34,4 +34,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Push to ghcr
-        run: docker push ghcr.io/upsilonproject/uar:latest
+        run: docker push ghcr.io/upsilonproject/upsilon-alert-receiver:latest
