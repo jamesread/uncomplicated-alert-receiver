@@ -54,9 +54,14 @@ header {
   align-items: center;
 }
 
+header .aside {
+  flex-grow: 0;
+}
+
 h1 {
   color: white;
   font-size: 1em;
+  flex-grow: 1;
 }
 
 header img {
