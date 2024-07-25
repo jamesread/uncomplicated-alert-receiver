@@ -4,8 +4,8 @@ tmp_dir = "tmp"
 
 [build]
   args_bin = []
-  bin = "./upsilon-alert-receiver"
-  cmd = "go build -o ./upsilon-alert-receiver cmd/upsilon-alert-receiver/main.go"
+  bin = "./uar"
+  cmd = "go build -o ./uar cmd/uncomplicated-alert-receiver/main.go"
   delay = 1
   exclude_dir = ["assets", "tmp", "vendor", "testdata"]
   exclude_file = []

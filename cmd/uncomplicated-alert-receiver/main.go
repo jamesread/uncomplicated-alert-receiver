@@ -56,13 +56,19 @@ func handleAlert(alert *Alert) {
 func buildURL(alert *Alert) string {
 	host := os.Getenv("ALERTMANAGER_HOST")
 
+	if host == "" {
+		return "#"
+	}
+
+	return fmt.Sprintf("%v/#/alerts?filter={%v}", host, buildURLFilter(alert))
+}
+
+func buildURLFilter(alert *Alert) string {
 	v := ""
 
 	filterKeys := []string{"job", "instance"}
 
 	for i, k := range filterKeys {
-		log.Infof("k: %v   %v", k, alert.Labels[k])
-
 		v += fmt.Sprintf("%v=\"%v\"", k, alert.Labels[k])
 		v = strings.ReplaceAll(v, "=", "%3D")
 
@@ -71,7 +77,7 @@ func buildURL(alert *Alert) string {
 		}
 	}
 
-	return fmt.Sprintf("http://%v/#/alerts?filter={%v}", host, v)
+	return v
 }
 
 func getAllAlerts() http.HandlerFunc {
