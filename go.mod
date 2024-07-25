@@ -1,4 +1,4 @@
-module github.com/upsilonproject/upsilon-alert-receiver
+module github.com/jamesread/uncomplicated-alert-receiver
 
 go 1.21
 

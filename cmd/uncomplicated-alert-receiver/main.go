@@ -96,7 +96,7 @@ func getListenAddress() string {
 }
 
 func main() {
-	log.Infof("upsilon-alert-receiver")
+	log.Infof("uncomplicated-alert-receiver")
 
 	http.HandleFunc("/alerts", receiveWebhook)
 	http.HandleFunc("/alert_list", getAllAlerts())
