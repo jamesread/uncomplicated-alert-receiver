@@ -40,8 +40,8 @@ func receiveWebhook(w http.ResponseWriter, req *http.Request) {
 
 	clear(alertMap)
 
-	for _, alert := range webhook.Alerts {
-		handleAlert(&alert)
+	for k, _ := range webhook.Alerts {
+		handleAlert(&webhook.Alerts[k])
 	}
 }
 
