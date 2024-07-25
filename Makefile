@@ -1,5 +1,5 @@
 default:
-	go build -o uar github.com/uncomplicatedproject/uncomplicated-alert-receiver/cmd/uncomplicated-alert-receiver
+	go build -o uar github.com/jamesread/uncomplicated-alert-receiver/cmd/uncomplicated-alert-receiver
 
 container:
 	docker stop uar || true
@@ -7,7 +7,7 @@ container:
 	docker build -t ghcr.io/jamesread/uncomplicated-alert-receiver .
 
 devcontainer: container
-	docker run -d --name uar -p 8080:8080 ghcr.io/uncomplicatedproject/uncomplicated-alert-receiver
+	docker run -d --name uar -p 8080:8080 ghcr.io/jamesread/uncomplicated-alert-receiver
 
 codestyle:
 	go fmt ./...
