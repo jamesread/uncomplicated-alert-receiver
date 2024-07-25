@@ -1,6 +1,9 @@
 # uncomplicated-alert-receiver (UAR)
+<p align = "center">
+<img src = "var/logo.png" width = "128px" />
+</p>
 
-A robust and reliable Prometheus alert receiver intended for heads up displays. It works without internet access, external dependencies, configuration files, storage, and generally has very few things to go wrong.
+A robust and reliable Prometheus alert receiver intended for heads up displays. It works without internet access, external dependencies, configuration files, storage, and generally has very few things to go wrong. 
 
 It is designed to supplement other alert receivers, which typically are used for sending notifications, such as email, slack, pagerduty, etc. It is not a replacement for those services, but a supplement to them.
 
