@@ -34,4 +34,4 @@ jobs:
           password: ${{ secrets.CONTAINER_TOKEN }}
 
       - name: Push to ghcr
-        run: docker push ghcr.io/upsilonproject/upsilon-alert-receiver:latest
+        run: docker push ghcr.io/jamesread/uncomplicated-alert-receiver:latest
