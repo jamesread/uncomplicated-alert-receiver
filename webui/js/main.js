@@ -11,9 +11,20 @@ function fetchAlertList () {
 
   fetch('/alert_list')
     .then(response => response.json())
-    .then(alerts => {
+    .then(res => {
+      const alerts = res.Alerts
+
       for (const alert of Object.keys(alerts)) {
         alertList.appendChild(renderAlert(alerts[alert]))
+      }
+
+      if (res.LastUpdated > 0) {
+        const lastUpdatedDate = new Date(res.LastUpdated * 1000)
+        const deltaLastUpdated = lastUpdatedDate - new Date()
+        const formatter = new Intl.RelativeTimeFormat()
+
+        document.getElementById('last-updated').textContent = formatter.format(Math.floor(deltaLastUpdated / 1000), 'seconds')
+        document.getElementById('last-updated').title = lastUpdatedDate.toLocaleString()
       }
     })
 }

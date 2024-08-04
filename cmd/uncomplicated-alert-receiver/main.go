@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 type Webhook struct {
@@ -23,7 +24,13 @@ type Alert struct {
 	}
 }
 
+type AlertListResponse struct {
+	LastUpdated int64
+	Alerts map[string]*Alert
+}
+
 var alertMap = make(map[string]*Alert)
+var lastUpdated int64
 
 func receiveWebhook(w http.ResponseWriter, req *http.Request) {
 	decoder := json.NewDecoder(req.Body)
@@ -43,6 +50,8 @@ func receiveWebhook(w http.ResponseWriter, req *http.Request) {
 	for k, _ := range webhook.Alerts {
 		handleAlert(&webhook.Alerts[k])
 	}
+
+	lastUpdated = int64(time.Now().Unix())
 }
 
 func handleAlert(alert *Alert) {
@@ -82,8 +91,13 @@ func buildURLFilter(alert *Alert) string {
 
 func getAllAlerts() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		res := AlertListResponse{
+			LastUpdated: lastUpdated,
+			Alerts: alertMap,
+		}
+
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(alertMap)
+		json.NewEncoder(w).Encode(res)
 	}
 }
 

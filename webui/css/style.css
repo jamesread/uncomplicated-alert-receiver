@@ -45,6 +45,7 @@ a:focus {
 
 header {
   background-color: #444;
+  color: white;
   display: flex;
   flex-direction: row;
   margin-bottom: 1em;
