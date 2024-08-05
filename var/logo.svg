@@ -28,13 +28,13 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="true"
-     inkscape:zoom="0.75900672"
-     inkscape:cx="92.225797"
-     inkscape:cy="206.84929"
+     inkscape:zoom="1.5180134"
+     inkscape:cx="253.95032"
+     inkscape:cy="276.67739"
      inkscape:window-width="1920"
-     inkscape:window-height="1080"
+     inkscape:window-height="1056"
      inkscape:window-x="1280"
-     inkscape:window-y="1080"
+     inkscape:window-y="1104"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1">
     <inkscape:grid
@@ -42,8 +42,8 @@
        units="px"
        originx="0"
        originy="0"
-       spacingx="0.26458332"
-       spacingy="0.26458334"
+       spacingx="1.0583333"
+       spacingy="1.0583333"
        empcolor="#3f3fff"
        empopacity="0.25098039"
        color="#3f3fff"
@@ -60,11 +60,11 @@
        id="linearGradient1"
        inkscape:collect="always">
       <stop
-         style="stop-color:#fcff05;stop-opacity:1;"
+         style="stop-color:#fcff13;stop-opacity:1;"
          offset="0"
          id="stop1" />
       <stop
-         style="stop-color:#e1f309;stop-opacity:1;"
+         style="stop-color:#d3d425;stop-opacity:1;"
          offset="1"
          id="stop2" />
     </linearGradient>
@@ -72,10 +72,10 @@
        inkscape:collect="always"
        xlink:href="#linearGradient1"
        id="radialGradient2"
-       cx="67.706306"
-       cy="65.527824"
-       fx="67.706306"
-       fy="65.527824"
+       cx="68.791664"
+       cy="79.874535"
+       fx="68.791664"
+       fy="79.874535"
        r="67.73011"
        gradientTransform="matrix(1,0,0,0.96518086,0,2.2816227)"
        gradientUnits="userSpaceOnUse" />
@@ -87,21 +87,21 @@
     <path
        id="rect2"
        style="fill:url(#radialGradient2);fill-opacity:1;stroke:#000000;stroke-width:5.45366"
-       d="M 67.503745,5.3153584 131.0612,107.09324 c -131.0612,27.84426 3.84036,28.36813 -126.7307595,0 z"
-       sodipodi:nodetypes="cccc"
+       d="M 68.791666,10.583333 126.91546,105.85457 C 74.499282,105.83337 80.645296,130.87698 68.784417,130.92818 57.875468,130.97528 63.5,105.83333 10.910808,105.85457 Z"
+       sodipodi:nodetypes="ccscc"
        inkscape:export-filename="./rect2.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
     <text
        xml:space="preserve"
        style="font-size:112.889px;line-height:1.25;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;stroke-width:0.264583"
-       x="33.760807"
-       y="104.16124"
+       x="34.917717"
+       y="104.6904"
        id="text1"><tspan
          sodipodi:role="line"
          id="tspan1"
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:112.889px;font-family:FreeMono;-inkscape-font-specification:FreeMono;stroke-width:0.264583"
-         x="33.760807"
-         y="104.16124">!</tspan></text>
+         x="34.917717"
+         y="104.6904">!</tspan></text>
   </g>
 </svg>
