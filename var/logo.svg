@@ -28,9 +28,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="true"
-     inkscape:zoom="1.5180134"
-     inkscape:cx="253.95032"
-     inkscape:cy="276.67739"
+     inkscape:zoom="1.0733976"
+     inkscape:cx="162.1021"
+     inkscape:cy="266.44368"
      inkscape:window-width="1920"
      inkscape:window-height="1056"
      inkscape:window-x="1280"
@@ -87,8 +87,8 @@
     <path
        id="rect2"
        style="fill:url(#radialGradient2);fill-opacity:1;stroke:#000000;stroke-width:5.45366"
-       d="M 68.791666,10.583333 126.91546,105.85457 C 74.499282,105.83337 80.645296,130.87698 68.784417,130.92818 57.875468,130.97528 63.5,105.83333 10.910808,105.85457 Z"
-       sodipodi:nodetypes="ccscc"
+       d="M 68.791666,10.583333 127,121.70832 c -21.16667,-10.58333 -42.126998,-13.0084 -47.625,-5.29166 -1.456736,2.0446 10.849719,5.57219 5.291666,10.58333 -5.708113,5.14644 -26.282429,5.10971 -31.75,0 -5.415344,-5.0609 7.291479,-7.92536 5.291667,-10.58333 -5.425284,-7.21081 -26.428002,-4.95338 -47.625,5.29166 z"
+       sodipodi:nodetypes="ccsssscc"
        inkscape:export-filename="./rect2.png"
        inkscape:export-xdpi="96"
        inkscape:export-ydpi="96" />
