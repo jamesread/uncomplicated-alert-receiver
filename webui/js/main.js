@@ -39,7 +39,25 @@ function renderAlert (alert) {
   alertElement.classList.add('alert')
   alertElement.appendChild(linkElement)
 
-  alertElement.classList.add(alert.Labels.severity)
+  if ('severity' in alert.Labels) {
+    switch (alert.Labels.severity) {
+      case 'critical':
+        alertElement.style.order = '1'
+        break
+      case 'warning':
+        alertElement.style.order = '2'
+        break
+      case 'info':
+        alertElement.style.order = '3'
+        break
+      default:
+        alertElement.style.order = '5'
+    }
+
+    alertElement.classList.add(alert.Labels.severity)
+  } else {
+    alertElement.style.order = '10'
+  }
 
   return alertElement
 }
