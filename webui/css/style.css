@@ -4,8 +4,8 @@ body {
   margin: 0;
 }
 
-.alert-list {
-  padding-bottom: 1em;
+#alert-list {
+  padding: 0;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   grid-template-rows: masonry;
