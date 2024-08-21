@@ -5,9 +5,21 @@ export default function main () {
   setInterval(fetchAlertList, 30000)
 }
 
-function fetchAlertList () {
-  const alertList = document.getElementById('alert-list')
+function clearAlertList (clazz) {
+  let alertList = document.getElementById(clazz)
+
   alertList.innerHTML = ''
+
+  return alertList
+}
+
+function fetchAlertList () {
+  clearAlertList('default')
+  clearAlertList('critical')
+  clearAlertList('info')
+  clearAlertList('warning')
+
+  const defaultAlertList = document.getElementById('default')
 
   fetch('/alert_list')
     .then(response => response.json())
@@ -15,18 +27,28 @@ function fetchAlertList () {
       const alerts = res.Alerts
 
       for (const alert of Object.keys(alerts)) {
+        let alertList = document.getElementById(alerts[alert].Labels.severity)
+
+        if (alertList === null) {
+          alertList = defaultAlertList
+        }
+
         alertList.appendChild(renderAlert(alerts[alert]))
       }
 
-      if (res.LastUpdated > 0) {
-        const lastUpdatedDate = new Date(res.LastUpdated * 1000)
-        const deltaLastUpdated = lastUpdatedDate - new Date()
-        const formatter = new Intl.RelativeTimeFormat()
-
-        document.getElementById('last-updated').textContent = formatter.format(Math.floor(deltaLastUpdated / 1000), 'seconds')
-        document.getElementById('last-updated').title = lastUpdatedDate.toLocaleString()
-      }
+      updateLastUpdated(res)
     })
+}
+
+function updateLastUpdated (res) {
+  if (res.LastUpdated > 0) {
+    const lastUpdatedDate = new Date(res.LastUpdated * 1000)
+    const deltaLastUpdated = lastUpdatedDate - new Date()
+    const formatter = new Intl.RelativeTimeFormat()
+
+    document.getElementById('last-updated').textContent = formatter.format(Math.floor(deltaLastUpdated / 1000), 'seconds')
+    document.getElementById('last-updated').title = lastUpdatedDate.toLocaleString()
+  }
 }
 
 function renderAlert (alert) {
