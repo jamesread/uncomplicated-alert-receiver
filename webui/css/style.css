@@ -19,6 +19,13 @@ div.alert {
   word-wrap: anywhere;
 }
 
+.critical {
+  background-color: salmon;
+  padding: 1em;
+  color: black;
+  font-weight: bold;
+}
+
 div.alert.critical {
   background-color: salmon;
 }
