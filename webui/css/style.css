@@ -19,7 +19,7 @@ div.alert {
   word-wrap: anywhere;
 }
 
-.critical {
+header .critical {
   background-color: salmon;
   padding: 1em;
   color: black;
