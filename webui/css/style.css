@@ -30,6 +30,10 @@ div.alert.critical {
   background-color: salmon;
 }
 
+div.alert.severe {
+  background-color: sandybrown;
+}
+
 div.alert.info {
   background-color: lightblue;
 }

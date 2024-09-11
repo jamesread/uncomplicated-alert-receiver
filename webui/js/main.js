@@ -67,11 +67,14 @@ function renderAlert (alert) {
       case 'critical':
         alertElement.style.order = '1'
         break
-      case 'warning':
+      case 'severe':
         alertElement.style.order = '2'
         break
-      case 'info':
+      case 'warning':
         alertElement.style.order = '3'
+        break
+      case 'info':
+        alertElement.style.order = '4'
         break
       default:
         alertElement.style.order = '5'
