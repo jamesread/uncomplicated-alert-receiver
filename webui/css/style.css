@@ -1,6 +1,21 @@
+:root {
+  --header-bg: #444;
+  --header-fg: white;
+  --status-critical-bg: salmon;
+  --status-critical-fg: black;
+  --status-severe-bg: LightSalmon;
+  --status-severe-fg: black;
+  --status-warning-bg: moccasin;
+  --status-warning-fg: black;
+  --status-important-bg: lightgoldenrodyellow;
+  --status-important-fg: black;
+  --status-info-bg: azure;
+  --status-info-fg: black;
+}
+
 body {
   font-family: sans-serif;
-  background-color: #dee3e7;
+  background-color: var(--crust);
   margin: 0;
 }
 
@@ -20,26 +35,35 @@ div.alert {
 }
 
 header .critical {
-  background-color: salmon;
+  background-color: var(--status-critical-bg);
   padding: 1em;
-  color: black;
+  color: var(--status-critical-fg);
   font-weight: bold;
 }
 
 div.alert.critical {
-  background-color: salmon;
+  background-color: var(--status-critical-bg);
+  color: var(--status-critical-fg);
 }
 
 div.alert.severe {
-  background-color: sandybrown;
-}
-
-div.alert.info {
-  background-color: lightblue;
+  background-color: var(--status-severe-bg);
+  color: var(--status-severe-fg);
 }
 
 div.alert.warning {
-  background-color: lightgoldenrodyellow;
+  background-color: var(--status-warning-bg);
+  color: var(--status-warning-fg);
+}
+
+div.alert.important {
+  background-color: var(--status-important-bg);
+  color: var(--status-important-fg);
+}
+
+div.alert.info {
+  background-color: var(--status-info-bg);
+  color: var(--status-info-fg);
 }
 
 a, a:visited {
@@ -55,8 +79,8 @@ a:focus {
 }
 
 header {
-  background-color: #444;
-  color: white;
+  background-color: var(--header-bg);
+  color: var(--header-fg);
   display: flex;
   flex-direction: row;
   margin-bottom: 1em;
@@ -71,7 +95,7 @@ header .aside {
 }
 
 h1 {
-  color: white;
+  color: var (--header-fg);
   font-size: 1em;
   flex-grow: 1;
 }

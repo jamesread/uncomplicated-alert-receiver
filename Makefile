@@ -14,3 +14,6 @@ codestyle:
 	go vet ./...
 	gocritic check ./...
 	gocyclo -over 3 cmd
+
+testdata:
+	curl http://localhost:8082/alerts --json @var/testing-data.json

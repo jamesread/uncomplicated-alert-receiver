@@ -1,0 +1,25 @@
+{
+	"alerts": [
+		{
+			"Labels": {"severity": "critical"},
+			"Annotations": {"summary": "critical"}
+		},
+		{
+			"Labels": {"severity": "severe"},
+			"Annotations": {"summary": "severe"}
+		},
+		{
+			"Labels": {"severity": "warning"},
+			"Annotations": {"summary": "warning"}
+		},
+		{
+			"Labels": {"severity": "important"},
+			"Annotations": {"summary": "important"}
+		},
+		{
+			"Labels": {"severity": "info"},
+			"Annotations": {"summary": "info"}
+		}
+
+	]
+}
