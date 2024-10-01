@@ -41,6 +41,9 @@ function fetchAlertList () {
       }
 
       renderLastUpdated(res)
+    }).catch(error => {
+      document.getElementById('last-updated').textContent = 'Fetch error'
+      document.getElementById('last-updated').classList.add('critical')
     })
 }
 
@@ -55,12 +58,14 @@ function renderLastUpdated (res) {
 
     if (deltaLastUpdated < -100) {
       document.getElementById('last-updated').classList.add('critical')
-
     } else if (deltaLastUpdated > 0) {
       document.getElementById('last-updated').classList.add('info')
     } else {
       document.getElementById('last-updated').classList.remove('critical')
     }
+  } else if (res.LastUpdated === 0) {
+    document.getElementById('last-updated').textContent = 'Nothing received yet'
+    document.getElementById('last-updated').classList.add('critical')
   }
 }
 
