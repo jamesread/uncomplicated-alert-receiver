@@ -5,6 +5,7 @@
 A robust and reliable Prometheus alert receiver intended for heads up displays. It works without internet access, has no external dependencies, no configuration files, no storage needs, and generally has very few things to go wrong - all it does it receives alerts, and displays them in a simple webpage.
 
 [![Discord](https://img.shields.io/discord/846737624960860180?label=Discord%20Server)](https://discord.gg/jhYWWpNJ3v)
+[![Go Report Card](https://goreportcard.com/badge/github.com/jamesread/uncomplicated-alert-receiver)](https://goreportcard.com/report/github.com/jamesread/uncomplicated-alert-receiver)
 
 <p align = "center">
 <img src = "var/screenshot1.png" />
