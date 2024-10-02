@@ -11,6 +11,7 @@
   --status-important-fg: black;
   --status-info-bg: azure;
   --status-info-fg: black;
+  --crust: #dee3e7;
 }
 
 body {
