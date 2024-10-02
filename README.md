@@ -1,6 +1,11 @@
 # uncomplicated-alert-receiver (UAR)
+
+<img alt = "project logo" src = "var/logo.png" align = "right" />
+
+[![Discord](https://img.shields.io/discord/846737624960860180?label=Discord%20Server)](https://discord.gg/jhYWWpNJ3v)
+
 <p align = "center">
-<img src = "var/logo.png" width = "128px" />
+<img src = "var/screenshot.png" />
 </p>
 
 A robust and reliable Prometheus alert receiver intended for heads up displays. It works without internet access, has no external dependencies, no configuration files, no storage needs, and generally has very few things to go wrong - all it does it receives alerts, and displays them in a simple webpage.
@@ -21,7 +26,7 @@ UAR is distributed as a Linux container, it can run on any host port, in the exa
 docker run -p 1337:8080 --name uar ghcr.io/jamesread/uncomplicated-alert-receiver
 ```
 
-## Setup 
+## Setup
 
 You should already have a prometheus running, as well as an alertmanager running, with at least one alert configured.
 
@@ -40,7 +45,7 @@ route:
   group_interval: 30s
 ```
 
-Of course you are free to set the sending intervals to a duration that fits you. 
+Of course you are free to set the sending intervals to a duration that fits you.
 
 ## **This is a No-Nonsense Open Source project;**
 
