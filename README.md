@@ -1,14 +1,14 @@
 # uncomplicated-alert-receiver (UAR)
 
-<img alt = "project logo" src = "var/logo.png" align = "right" />
+<img alt = "project logo" src = "var/logo.png" align = "right" width = "160px" />
+
+A robust and reliable Prometheus alert receiver intended for heads up displays. It works without internet access, has no external dependencies, no configuration files, no storage needs, and generally has very few things to go wrong - all it does it receives alerts, and displays them in a simple webpage.
 
 [![Discord](https://img.shields.io/discord/846737624960860180?label=Discord%20Server)](https://discord.gg/jhYWWpNJ3v)
 
 <p align = "center">
-<img src = "var/screenshot.png" />
+<img src = "var/screenshot1.png" />
 </p>
-
-A robust and reliable Prometheus alert receiver intended for heads up displays. It works without internet access, has no external dependencies, no configuration files, no storage needs, and generally has very few things to go wrong - all it does it receives alerts, and displays them in a simple webpage.
 
 It is designed to supplement other alert receivers, which typically are used for sending notifications, such as email, slack, pagerduty, etc. It is not a replacement for those services, but a supplement to them.
 
