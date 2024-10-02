@@ -11,7 +11,7 @@ const severityWeighting = new Map([
 export default function main () {
   window.timeUntilNextUpdate = 0
 
-  setInterval(updateProgressBar, 1000)
+  window.intervalTimer = setInterval(updateProgressBar, 1000)
 }
 
 function updateProgressBar () {
@@ -21,7 +21,7 @@ function updateProgressBar () {
 
   window.timeUntilNextUpdate--
 
-  if (timeUntilNextUpdate < 0) {
+  if (window.timeUntilNextUpdate < 0) {
     fetchAlertList()
     window.timeUntilNextUpdate = 30
   }
@@ -31,7 +31,7 @@ function fetchAlertList () {
   const alertList = document.getElementById('alert-list')
   alertList.innerHTML = ''
 
-  fetch('/alert_list')
+  window.fetch('/alert_list')
     .then(response => response.json())
     .then(res => {
       const alerts = res.Alerts
@@ -42,6 +42,8 @@ function fetchAlertList () {
 
       renderLastUpdated(res)
     }).catch(error => {
+      console.error('Fetch error:', error)
+
       document.getElementById('last-updated').textContent = 'Fetch error'
       document.getElementById('last-updated').classList.add('critical')
     })
