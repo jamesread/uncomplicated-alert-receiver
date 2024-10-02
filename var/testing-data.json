@@ -2,23 +2,39 @@
 	"alerts": [
 		{
 			"Labels": {"severity": "critical"},
-			"Annotations": {"summary": "critical"}
+			"Annotations": {"summary": "Failed to scrape state metrics: metrics.k8s.example.lan"}
 		},
 		{
 			"Labels": {"severity": "severe"},
-			"Annotations": {"summary": "severe"}
+			"Annotations": {"summary": "Disk space > 90% on server1.example.lan"}
+		},
+		{
+			"Labels": {"severity": "severe"},
+			"Annotations": {"summary": "Target down: server2.example.lan"}
+		},
+		{
+			"Labels": {"severity": "severe"},
+			"Annotations": {"summary": "Target down: server3.example.lan"}
+		},
+		{
+			"Labels": {"severity": "severe"},
+			"Annotations": {"summary": "Target down: server4.example.lan"}
 		},
 		{
 			"Labels": {"severity": "warning"},
-			"Annotations": {"summary": "warning"}
+			"Annotations": {"summary": "Non-running container: docker.io/grafana/grafana:latest"}
+		},
+		{
+			"Labels": {"severity": "warning"},
+			"Annotations": {"summary": "Non-running container: docker.io/linuxserver/duckdns"}
 		},
 		{
 			"Labels": {"severity": "important"},
-			"Annotations": {"summary": "important"}
+			"Annotations": {"summary": "Utilization on server 9 is only 15%"}
 		},
 		{
 			"Labels": {"severity": "info"},
-			"Annotations": {"summary": "info"}
+			"Annotations": {"summary": "Time sync on server 1 is behind by 1337 seconds"}
 		}
 
 	]
