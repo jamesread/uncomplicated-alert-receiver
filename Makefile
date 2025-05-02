@@ -4,7 +4,8 @@ default:
 container:
 	docker stop uar || true
 	docker rm uar || true
-	docker build -t ghcr.io/jamesread/uncomplicated-alert-receiver .
+	docker buildx create --use --name multi-arch-builder || true
+	docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/jamesread/uncomplicated-alert-receiver --load .
 
 devcontainer: container
 	docker run -d --name uar -p 8080:8080 ghcr.io/jamesread/uncomplicated-alert-receiver
