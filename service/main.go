@@ -78,9 +78,9 @@ func main() {
 
 	log.Infof("WebUI dir: %v", webUiDir)
 
-	http.HandleFunc("/settings", getSettings)
+	http.HandleFunc("/api/settings", getSettings)
+	http.HandleFunc("/api/alert_list", receiver.GetAllAlerts)
 	http.HandleFunc("/alerts", receiver.ReceiveWebhook)
-	http.HandleFunc("/alert_list", receiver.GetAllAlerts)
 	http.Handle("/", http.FileServer(http.Dir(webUiDir)))
 
 	log.Fatal(http.ListenAndServe(getListenAddress(), nil))

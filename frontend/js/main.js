@@ -1,5 +1,7 @@
 'use strict'
 
+import 'femtocrank/style.css';
+
 window.severityWeighting = new Map();
 
 export default function main () {
@@ -10,10 +12,12 @@ export default function main () {
   window.intervalTimer = setInterval(updateProgressBar, 1000)
 
   updateSettings()
+  setupDropdownMenu()
+  setupFullscreenButton()
 }
 
 function updateSettings () {
-  window.fetch(window.baseUrl + '/settings')
+  window.fetch(window.baseUrl + '/api/settings')
     .then(response => response.json())
     .then(res => {
       window.settings = res
@@ -42,7 +46,7 @@ function fetchAlertList () {
   const alertList = document.getElementById('alert-list')
   alertList.innerHTML = ''
 
-  window.fetch(window.baseUrl + '/alert_list')
+  window.fetch(window.baseUrl + '/api/alert_list')
     .then(response => response.json())
     .then(res => {
       const alerts = res.Alerts
@@ -126,4 +130,64 @@ function renderAlert (alert) {
   }
 
   return alertElement
+}
+
+function setupDropdownMenu () {
+  const dropdownToggle = document.querySelector('.dropdown-toggle')
+  const dropdownMenu = document.querySelector('.dropdown-menu')
+
+  if (!dropdownToggle || !dropdownMenu) return
+
+  dropdownToggle.addEventListener('click', (e) => {
+    e.stopPropagation()
+    dropdownMenu.classList.toggle('show')
+  })
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', (e) => {
+    if (!dropdownToggle.contains(e.target) && !dropdownMenu.contains(e.target)) {
+      dropdownMenu.classList.remove('show')
+    }
+  })
+
+  // Close dropdown when pressing Escape
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      dropdownMenu.classList.remove('show')
+    }
+  })
+}
+
+function setupFullscreenButton () {
+  const fullscreenBtn = document.getElementById('fullscreen-btn')
+
+  if (!fullscreenBtn) return
+
+  fullscreenBtn.addEventListener('click', () => {
+    if (!document.fullscreenElement) {
+      // Enter fullscreen
+      document.documentElement.requestFullscreen().catch(err => {
+        console.error('Error attempting to enable fullscreen:', err)
+      })
+    } else {
+      // Exit fullscreen
+      document.exitFullscreen().catch(err => {
+        console.error('Error attempting to exit fullscreen:', err)
+      })
+    }
+  })
+
+  // Update button text based on fullscreen state
+  document.addEventListener('fullscreenchange', () => {
+    const isFullscreen = !!document.fullscreenElement
+    const icon = fullscreenBtn.querySelector('svg')
+
+    if (isFullscreen) {
+      // Change to exit fullscreen icon
+      icon.innerHTML = '<path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/>'
+    } else {
+      // Change to enter fullscreen icon
+      icon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>'
+    }
+  })
 }
