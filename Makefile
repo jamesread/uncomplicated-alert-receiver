@@ -13,7 +13,7 @@ devcontainer: container
 	docker run -d --name uar -p 8080:8080 ghcr.io/jamesread/uncomplicated-alert-receiver
 
 testdata:
-	curl http://localhost:8082/alerts --json @var/testing-data.json
+	curl http://localhost:8080/alerts --json @var/testing-data.json
 
 
 .PHONY: default frontend container devcontainer testdata
