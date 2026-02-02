@@ -7,6 +7,8 @@
 	<link rel="shortcut icon" href="images/icons/logo.png">
 
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="theme-color" content="#444">
+	<link rel="apple-touch-icon" href="images/icons/logo.png">
 </head>
 
 <body>
@@ -49,6 +51,10 @@
 
 	<main>
 		<div id = "alert-container">
+			<div id = "offline-message" class="offline-message" aria-live="polite" hidden>
+				<p class="offline-message__title">Cannot connect to the server</p>
+				<p class="offline-message__body">You appear to be offline or the alert receiver is unreachable. Alerts will appear here once the connection is restored.</p>
+			</div>
 			<div id = "alert-list">
 				<!-- Alerts will be added here -->
 			</div>

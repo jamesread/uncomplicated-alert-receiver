@@ -2,6 +2,12 @@
 
 import 'femtocrank/style.css';
 
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  import('virtual:pwa-register').then(({ registerSW }) => {
+    registerSW({ immediate: true })
+  })
+}
+
 window.severityWeighting = new Map();
 
 export default function main () {
@@ -14,12 +20,54 @@ export default function main () {
   updateSettings()
   setupDropdownMenu()
   setupFullscreenButton()
+  setupOfflineDetection()
+}
+
+function setupOfflineDetection () {
+  const offlineMessage = document.getElementById('offline-message')
+  const alertList = document.getElementById('alert-list')
+
+  function showOffline () {
+    if (offlineMessage && alertList) {
+      offlineMessage.hidden = false
+      alertList.hidden = true
+    }
+  }
+
+  function hideOffline () {
+    if (offlineMessage && alertList) {
+      offlineMessage.hidden = true
+      alertList.hidden = false
+    }
+  }
+
+  function isNetworkError (err) {
+    return err instanceof TypeError && (err.message === 'Failed to fetch' || err.message === 'Load failed')
+  }
+
+  window.showOfflineMessage = showOffline
+  window.hideOfflineMessage = hideOffline
+  window.isNetworkError = isNetworkError
+
+  if (!navigator.onLine) {
+    showOffline()
+  }
+
+  window.addEventListener('online', () => {
+    hideOffline()
+    window.timeUntilNextUpdate = 0
+    fetchAlertList()
+    updateSettings()
+  })
+
+  window.addEventListener('offline', showOffline)
 }
 
 function updateSettings () {
   window.fetch(window.baseUrl + '/api/settings')
     .then(response => response.json())
     .then(res => {
+      if (window.hideOfflineMessage) window.hideOfflineMessage()
       window.settings = res
       window.severityWeighting = new Map(Object.entries(res.SeverityLabels))
       document.getElementById('current-version').innerHTML = 'Version: ' + res.Version
@@ -27,6 +75,9 @@ function updateSettings () {
     .catch(error => {
       console.error('Fetch error:', error)
       document.getElementById('current-version').innerHTML = 'Error fetching version'
+      if (window.isNetworkError && window.isNetworkError(error)) {
+        if (window.showOfflineMessage) window.showOfflineMessage()
+      }
     })
 }
 function updateProgressBar () {
@@ -61,6 +112,9 @@ function fetchAlertList () {
 
       document.getElementById('last-updated').textContent = 'Fetch error'
       document.getElementById('last-updated').classList.add('critical')
+      if (window.isNetworkError && window.isNetworkError(error)) {
+        if (window.showOfflineMessage) window.showOfflineMessage()
+      }
     })
 }
 
