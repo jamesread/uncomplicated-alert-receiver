@@ -11,8 +11,8 @@ export default defineConfig({
         description: 'View and manage alerts from Alertmanager',
         theme_color: '#444',
         background_color: '#444',
-        display: 'minimal-ui',
-        display: ['window-controls-overlay'],
+        display: 'window-controls-overlay',
+        display_override: ['window-controls-overlay', 'minimal-ui', 'standalone', 'browser'],
         start_url: '/',
         scope: '/',
         icons: [
