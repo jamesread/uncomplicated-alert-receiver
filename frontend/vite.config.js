@@ -10,8 +10,9 @@ export default defineConfig({
         short_name: 'UAR',
         description: 'View and manage alerts from Alertmanager',
         theme_color: '#444',
-        background_color: '#dee3e7',
-        display: 'standalone',
+        background_color: '#444',
+        display: 'minimal-ui',
+        display: ['window-controls-overlay'],
         start_url: '/',
         scope: '/',
         icons: [

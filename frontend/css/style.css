@@ -218,3 +218,7 @@ span.label span.val {
     border-radius: 0;
   }
 }
+
+body.wco div.logo-and-title {
+  display: none;
+}

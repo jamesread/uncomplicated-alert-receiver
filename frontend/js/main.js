@@ -21,6 +21,40 @@ export default function main () {
   setupDropdownMenu()
   setupFullscreenButton()
   setupOfflineDetection()
+  setupPwaHeaderClasses()
+}
+
+function setupPwaHeaderClasses () {
+  const header = document.querySelector('header')
+  if (!header) return
+
+  const displayModeQueries = [
+    window.matchMedia('(display-mode: standalone)'),
+    window.matchMedia('(display-mode: fullscreen)'),
+    window.matchMedia('(display-mode: minimal-ui)'),
+    window.matchMedia('(display-mode: window-controls-overlay)')
+  ]
+  const wcoQuery = displayModeQueries[3]
+
+  function isPwa () {
+    return displayModeQueries.some(q => q.matches)
+  }
+
+  function updateHeaderClasses () {
+    if (isPwa()) {
+      header.classList.add('pwa')
+    } else {
+      header.classList.remove('pwa')
+    }
+    if (wcoQuery.matches) {
+      header.classList.add('wco')
+    } else {
+      header.classList.remove('wco')
+    }
+  }
+
+  updateHeaderClasses()
+  displayModeQueries.forEach(q => q.addEventListener('change', updateHeaderClasses))
 }
 
 function setupOfflineDetection () {
