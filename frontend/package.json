@@ -9,15 +9,15 @@
   "license": "AGPL-3.0-or-later",
   "description": "",
   "dependencies": {
-    "femtocrank": "^2.4.3",
+    "femtocrank": "^2.5.0",
+    "standard": "^17.1.2",
     "vite": "^6.3.6"
   },
   "devDependencies": {
-    "eslint": "^8.57.1",
-    "eslint-config-standard": "^17.1.0",
-    "eslint-plugin-import": "^2.31.0",
-    "eslint-plugin-n": "^16.6.2",
-    "eslint-plugin-promise": "^6.6.0",
+    "eslint": "^10.2.1",
     "vite-plugin-pwa": "^1.2.0"
+  },
+  "overrides": {
+	  "serialize-javascript": ">=7.0.3"
   }
 }
