@@ -17,7 +17,10 @@ func (c *RuntimeConfig) putSeverityLabels(envvar string, defaultLabels string, l
 	}
 
 	for _, label := range strings.Split(labels, ",") {
-		c.SeverityLabels[label] = level
+		label = strings.TrimSpace(label)
+		if label != "" {
+			c.SeverityLabels[label] = level
+		}
 	}
 }
 
@@ -41,7 +44,15 @@ func getEnvArray(envvar string, def []string) []string {
 	env := os.Getenv(envvar)
 
 	if env != "" {
-		return strings.Split(env, ",")
+		parts := strings.Split(env, ",")
+		result := make([]string, 0, len(parts))
+		for _, part := range parts {
+			part = strings.TrimSpace(part)
+			if part != "" {
+				result = append(result, part)
+			}
+		}
+		return result
 	}
 
 	return def

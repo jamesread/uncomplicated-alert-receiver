@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -16,6 +17,7 @@ type Webhook struct {
 
 type Alert struct {
 	Status      string
+	Fingerprint string
 	Annotations map[string]string
 	Labels      map[string]string
 	Metadata    struct {
@@ -23,37 +25,53 @@ type Alert struct {
 	}
 }
 
-var alertMap = make(map[string]*Alert)
-var lastUpdated int64
+var (
+	alertMu     sync.RWMutex
+	alertMap    = make(map[string]*Alert)
+	lastUpdated int64
+)
 
 func ReceiveWebhook(w http.ResponseWriter, req *http.Request) {
-	decoder := json.NewDecoder(req.Body)
-
 	var webhook Webhook
 
-	err := decoder.Decode(&webhook)
-
-	if err != nil {
+	if err := json.NewDecoder(req.Body).Decode(&webhook); err != nil {
 		log.Errorf("Decode err: %v", err)
+		http.Error(w, "invalid JSON payload", http.StatusBadRequest)
+		return
 	}
 
 	log.Infof("Webhook: %+v", webhook)
 
-	clear(alertMap)
-
-	for k, _ := range webhook.Alerts {
-		handleAlert(&webhook.Alerts[k])
+	newAlerts := make(map[string]*Alert, len(webhook.Alerts))
+	for i := range webhook.Alerts {
+		handleAlert(&webhook.Alerts[i])
+		newAlerts[alertKey(&webhook.Alerts[i])] = &webhook.Alerts[i]
 	}
 
-	lastUpdated = int64(time.Now().Unix())
+	alertMu.Lock()
+	alertMap = newAlerts
+	lastUpdated = time.Now().Unix()
+	alertMu.Unlock()
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func alertKey(alert *Alert) string {
+	if alert.Fingerprint != "" {
+		return alert.Fingerprint
+	}
+
+	summary := alert.Annotations["summary"]
+	if summary != "" {
+		return summary
+	}
+
+	return fmt.Sprintf("%v", alert.Labels)
 }
 
 func handleAlert(alert *Alert) {
 	log.Infof("Alert: %+v", alert)
-
 	alert.Metadata.AlertManagerUrl = buildURL(alert)
-
-	alertMap[alert.Annotations["summary"]] = alert
 }
 
 func buildURL(alert *Alert) string {
@@ -67,29 +85,27 @@ func buildURL(alert *Alert) string {
 }
 
 func buildURLFilter(alert *Alert) string {
-	v := ""
-
 	filterKeys := []string{"job", "instance"}
+	parts := make([]string, 0, len(filterKeys))
 
-	for i, k := range filterKeys {
-		v += fmt.Sprintf("%v=\"%v\"", k, alert.Labels[k])
-		v = strings.ReplaceAll(v, "=", "%3D")
-
-		if i != len(filterKeys)-1 {
-			v += "%2C "
+	for _, k := range filterKeys {
+		if v, ok := alert.Labels[k]; ok {
+			parts = append(parts, fmt.Sprintf("%v%%3D%q", k, v))
 		}
 	}
 
-	return v
+	return strings.Join(parts, "%2C%20")
 }
 
 func GetAllAlerts(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 
+	alertMu.RLock()
 	res := AlertListResponse{
 		LastUpdated: lastUpdated,
 		Alerts:      alertMap,
 	}
+	alertMu.RUnlock()
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(res)

@@ -15,7 +15,7 @@ func getListenAddress() string {
 	port := os.Getenv("PORT")
 
 	if port == "" {
-		port = "8082"
+		port = "8080"
 	}
 
 	addr := ":" + port

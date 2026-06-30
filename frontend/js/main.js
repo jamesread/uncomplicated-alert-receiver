@@ -98,8 +98,15 @@ function setupOfflineDetection () {
 }
 
 function updateSettings () {
-  window.fetch(window.baseUrl + '/api/settings')
-    .then(response => response.json())
+  window.fetch(window.baseUrl + '/api/settings', {
+    headers: { Accept: 'application/json' }
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Settings request failed: ' + response.status)
+      }
+      return response.json()
+    })
     .then(res => {
       if (window.hideOfflineMessage) window.hideOfflineMessage()
       window.settings = res
@@ -131,9 +138,18 @@ function fetchAlertList () {
   const alertList = document.getElementById('alert-list')
   alertList.innerHTML = ''
 
-  window.fetch(window.baseUrl + '/api/alert_list')
-    .then(response => response.json())
+  window.fetch(window.baseUrl + '/api/alert_list', {
+    headers: { Accept: 'application/json' }
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Alert list request failed: ' + response.status)
+      }
+      return response.json()
+    })
     .then(res => {
+      if (window.hideOfflineMessage) window.hideOfflineMessage()
+
       const alerts = res.Alerts
 
       for (const alert of Object.keys(alerts)) {
@@ -153,24 +169,25 @@ function fetchAlertList () {
 }
 
 function renderLastUpdated (res) {
+  const lastUpdatedEl = document.getElementById('last-updated')
+  lastUpdatedEl.classList.remove('critical', 'info')
+
   if (res.LastUpdated > 0) {
     const lastUpdatedDate = new Date(res.LastUpdated * 1000)
     const deltaLastUpdated = Math.floor((lastUpdatedDate - new Date()) / 1000)
     const formatter = new Intl.RelativeTimeFormat()
 
-    document.getElementById('last-updated').textContent = formatter.format(deltaLastUpdated, 'seconds')
-    document.getElementById('last-updated').title = 'Last payload from AlertManager: ' + lastUpdatedDate.toLocaleString()
+    lastUpdatedEl.textContent = formatter.format(deltaLastUpdated, 'seconds')
+    lastUpdatedEl.title = 'Last payload from AlertManager: ' + lastUpdatedDate.toLocaleString()
 
     if (deltaLastUpdated < -100) {
-      document.getElementById('last-updated').classList.add('critical')
+      lastUpdatedEl.classList.add('critical')
     } else if (deltaLastUpdated > 0) {
-      document.getElementById('last-updated').classList.add('info')
-    } else {
-      document.getElementById('last-updated').classList.remove('critical')
+      lastUpdatedEl.classList.add('info')
     }
   } else if (res.LastUpdated === 0) {
-    document.getElementById('last-updated').textContent = 'Nothing received from Alertmanager yet'
-    document.getElementById('last-updated').classList.add('critical')
+    lastUpdatedEl.textContent = 'Nothing received from Alertmanager yet'
+    lastUpdatedEl.classList.add('critical')
   }
 }
 
