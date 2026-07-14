@@ -268,9 +268,8 @@ function createLabelElement (key, value, { onClick, title } = {}) {
   if (onClick) {
     labelElement.type = 'button'
   }
-  if (title) {
-    labelElement.title = title
-  }
+  const fullLabel = key + '=' + value
+  labelElement.title = title ? fullLabel + ' — ' + title : fullLabel
 
   const keyElement = document.createElement('span')
   keyElement.classList.add('key')

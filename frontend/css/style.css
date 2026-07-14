@@ -181,7 +181,8 @@ span.label,
 button.label {
   font-size: smaller;
   color: rgba(0, 0, 0, 0.7);
-  display: inline-block;
+  display: inline-flex;
+  max-width: 100%;
   margin-top: 1em;
   margin-right: .4em;
   cursor: pointer;
@@ -189,6 +190,9 @@ button.label {
   background: none;
   padding: 0;
   font: inherit;
+  white-space: nowrap;
+  vertical-align: bottom;
+  overflow: hidden;
 }
 
 span.label:hover span.key,
@@ -213,6 +217,7 @@ button.label span.key {
   padding-left: 0.5em;
   padding-right: 0.5em;
   font-weight: bold;
+  flex-shrink: 0;
 }
 
 span.label span.val,
@@ -221,6 +226,10 @@ button.label span.val {
   padding-left: 0.5em;
   padding-right: 0.5em;
   border-radius: 0 .5em .5em 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .filter-bar {
