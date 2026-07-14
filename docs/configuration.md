@@ -17,3 +17,11 @@ The default severity labels are;
 * `SEV_LABELS_3`: warning
 * `SEV_LABELS_4`: important
 * `SEV_LABELS_5`: info,information
+
+### `DRAW_LABELS` Environment Variable
+
+When set to any non-empty value, UAR will show Prometheus labels on each alert box by default. You can also toggle label display from the logo menu in the UI; that preference is stored in the browser.
+
+### `IGNORED_LABELS` Environment Variable
+
+A comma-separated list of label names that should not be drawn when labels are shown. The default is `alertname,instance,job,severity`.

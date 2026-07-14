@@ -8,7 +8,13 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   })
 }
 
-window.severityWeighting = new Map();
+window.severityWeighting = new Map()
+window.settings = { DrawLabels: false, IgnoredLabels: [] }
+
+const DRAW_LABELS_STORAGE_KEY = 'uar.drawLabels'
+window.drawLabels = loadDrawLabelsPreference()
+window.labelFilters = []
+window.lastAlertResponse = null
 
 export default function main () {
   window.baseUrl = window.location.origin
@@ -20,8 +26,41 @@ export default function main () {
   updateSettings()
   setupDropdownMenu()
   setupFullscreenButton()
+  setupToggleLabelsButton()
+  setupFilterBar()
   setupOfflineDetection()
   setupPwaHeaderClasses()
+}
+
+function loadDrawLabelsPreference () {
+  const stored = window.localStorage.getItem(DRAW_LABELS_STORAGE_KEY)
+  if (stored === '1') return true
+  if (stored === '0') return false
+  return null
+}
+
+function shouldDrawLabels () {
+  if (window.drawLabels !== null) {
+    return window.drawLabels
+  }
+  return Boolean(window.settings && window.settings.DrawLabels)
+}
+
+function setDrawLabelsPreference (enabled) {
+  window.drawLabels = enabled
+  window.localStorage.setItem(DRAW_LABELS_STORAGE_KEY, enabled ? '1' : '0')
+  updateToggleLabelsButton()
+  renderAlertList()
+}
+
+function updateToggleLabelsButton () {
+  const btn = document.getElementById('toggle-labels-btn')
+  const text = document.getElementById('toggle-labels-text')
+  if (!btn || !text) return
+
+  const enabled = shouldDrawLabels()
+  btn.setAttribute('aria-pressed', enabled ? 'true' : 'false')
+  text.textContent = enabled ? 'Hide labels' : 'Show labels'
 }
 
 function setupPwaHeaderClasses () {
@@ -110,8 +149,12 @@ function updateSettings () {
     .then(res => {
       if (window.hideOfflineMessage) window.hideOfflineMessage()
       window.settings = res
-      window.severityWeighting = new Map(Object.entries(res.SeverityLabels))
+      window.severityWeighting = new Map(Object.entries(res.SeverityLabels || {}))
+      if (!Array.isArray(window.settings.IgnoredLabels)) {
+        window.settings.IgnoredLabels = []
+      }
       document.getElementById('current-version').innerHTML = 'Version: ' + res.Version
+      updateToggleLabelsButton()
     })
     .catch(error => {
       console.error('Fetch error:', error)
@@ -150,12 +193,8 @@ function fetchAlertList () {
     .then(res => {
       if (window.hideOfflineMessage) window.hideOfflineMessage()
 
-      const alerts = res.Alerts
-
-      for (const alert of Object.keys(alerts)) {
-        alertList.appendChild(renderAlert(alerts[alert]))
-      }
-
+      window.lastAlertResponse = res
+      renderAlertList()
       renderLastUpdated(res)
     }).catch(error => {
       console.error('Fetch error:', error)
@@ -168,6 +207,147 @@ function fetchAlertList () {
     })
 }
 
+function renderAlertList () {
+  const alertList = document.getElementById('alert-list')
+  if (!alertList) return
+
+  alertList.innerHTML = ''
+
+  const res = window.lastAlertResponse
+  if (!res || !res.Alerts) return
+
+  for (const alert of Object.keys(res.Alerts)) {
+    const alertData = res.Alerts[alert]
+    if (!alertMatchesFilters(alertData)) {
+      continue
+    }
+    alertList.appendChild(renderAlert(alertData))
+  }
+}
+
+function alertMatchesFilters (alert) {
+  if (!window.labelFilters.length) {
+    return true
+  }
+
+  const labels = alert.Labels || {}
+  return window.labelFilters.every(filter => labels[filter.key] === filter.value)
+}
+
+function filterKey (key, value) {
+  return key + '=' + value
+}
+
+function addLabelFilter (key, value) {
+  const id = filterKey(key, value)
+  if (window.labelFilters.some(f => filterKey(f.key, f.value) === id)) {
+    return
+  }
+
+  window.labelFilters.push({ key, value })
+  renderFilterBar()
+  renderAlertList()
+}
+
+function removeLabelFilter (key, value) {
+  const id = filterKey(key, value)
+  window.labelFilters = window.labelFilters.filter(f => filterKey(f.key, f.value) !== id)
+  renderFilterBar()
+  renderAlertList()
+}
+
+function clearLabelFilters () {
+  window.labelFilters = []
+  renderFilterBar()
+  renderAlertList()
+}
+
+function createLabelElement (key, value, { onClick, title } = {}) {
+  const labelElement = document.createElement(onClick ? 'button' : 'span')
+  labelElement.classList.add('label')
+  if (onClick) {
+    labelElement.type = 'button'
+  }
+  if (title) {
+    labelElement.title = title
+  }
+
+  const keyElement = document.createElement('span')
+  keyElement.classList.add('key')
+  keyElement.textContent = key
+  labelElement.appendChild(keyElement)
+
+  const valElement = document.createElement('span')
+  valElement.classList.add('val')
+  valElement.textContent = value
+  labelElement.appendChild(valElement)
+
+  if (onClick) {
+    labelElement.addEventListener('click', (e) => {
+      e.preventDefault()
+      e.stopPropagation()
+      onClick()
+    })
+  }
+
+  return labelElement
+}
+
+function renderFilterBar () {
+  const filterBar = document.getElementById('filter-bar')
+  const chips = document.getElementById('active-filters')
+  if (!filterBar || !chips) return
+
+  chips.innerHTML = ''
+
+  if (!window.labelFilters.length) {
+    filterBar.hidden = true
+    return
+  }
+
+  filterBar.hidden = false
+
+  for (const filter of window.labelFilters) {
+    chips.appendChild(createLabelElement(filter.key, filter.value, {
+      title: 'Remove filter',
+      onClick: () => removeLabelFilter(filter.key, filter.value)
+    }))
+  }
+}
+
+function setupFilterBar () {
+  const clearBtn = document.getElementById('clear-filters-btn')
+  if (!clearBtn) return
+
+  clearBtn.addEventListener('click', () => {
+    clearLabelFilters()
+  })
+
+  renderFilterBar()
+}
+
+function formatCompactAge (deltaSeconds) {
+  const isFuture = deltaSeconds > 0
+  let remaining = Math.abs(deltaSeconds)
+
+  const units = [
+    { seconds: 86400, suffix: 'd' },
+    { seconds: 3600, suffix: 'h' },
+    { seconds: 60, suffix: 'm' },
+    { seconds: 1, suffix: 's' }
+  ]
+
+  let formatted = '0s'
+  for (const unit of units) {
+    if (remaining >= unit.seconds || unit.suffix === 's') {
+      formatted = Math.floor(remaining / unit.seconds) + unit.suffix
+      break
+    }
+  }
+
+  return isFuture ? 'in ' + formatted : formatted + ' ago'
+}
+
 function renderLastUpdated (res) {
   const lastUpdatedEl = document.getElementById('last-updated')
   lastUpdatedEl.classList.remove('critical', 'info')
@@ -175,9 +355,8 @@ function renderLastUpdated (res) {
   if (res.LastUpdated > 0) {
     const lastUpdatedDate = new Date(res.LastUpdated * 1000)
     const deltaLastUpdated = Math.floor((lastUpdatedDate - new Date()) / 1000)
-    const formatter = new Intl.RelativeTimeFormat()
 
-    lastUpdatedEl.textContent = formatter.format(deltaLastUpdated, 'seconds')
+    lastUpdatedEl.textContent = formatCompactAge(deltaLastUpdated)
     lastUpdatedEl.title = 'Last payload from AlertManager: ' + lastUpdatedDate.toLocaleString()
 
     if (deltaLastUpdated < -100) {
@@ -211,26 +390,18 @@ function renderAlert (alert) {
     alertElement.style.order = '10'
   }
 
-  if (window.settings.DrawLabels) {
+  if (shouldDrawLabels() && alert.Labels) {
+    const ignored = (window.settings && window.settings.IgnoredLabels) || []
+
     for (const label of Object.keys(alert.Labels)) {
-      if (window.settings.IgnoredLabels.includes(label)) {
+      if (ignored.includes(label)) {
         continue
       }
 
-      const labelElement = document.createElement('span')
-      labelElement.classList.add('label')
-
-      const keyElement = document.createElement('span')
-      keyElement.classList.add('key')
-      keyElement.textContent = label
-      labelElement.appendChild(keyElement)
-
-      const valElement = document.createElement('span')
-      valElement.classList.add('val')
-      valElement.textContent = alert.Labels[label]
-      labelElement.appendChild(valElement)
-
-      alertElement.appendChild(labelElement)
+      alertElement.appendChild(createLabelElement(label, alert.Labels[label], {
+        title: 'Filter by this label',
+        onClick: () => addLabelFilter(label, alert.Labels[label])
+      }))
     }
   }
 
@@ -294,5 +465,19 @@ function setupFullscreenButton () {
       // Change to enter fullscreen icon
       icon.innerHTML = '<path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>'
     }
+  })
+}
+
+function setupToggleLabelsButton () {
+  const toggleBtn = document.getElementById('toggle-labels-btn')
+
+  if (!toggleBtn) return
+
+  updateToggleLabelsButton()
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDrawLabelsPreference(!shouldDrawLabels())
   })
 }

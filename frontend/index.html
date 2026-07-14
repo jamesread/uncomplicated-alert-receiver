@@ -32,6 +32,12 @@
 							</svg>
 							Fullscreen
 						</a>
+						<button type="button" class="dropdown-item" id="toggle-labels-btn" aria-pressed="false">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+								<path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"/>
+							</svg>
+							<span id="toggle-labels-text">Show labels</span>
+						</button>
 					</div>
 				</div>
 			</div>
@@ -48,6 +54,12 @@
 			</p>
 		</div>
 	</header>
+
+	<div id="filter-bar" class="filter-bar" hidden>
+		<span class="filter-bar__label">Filters:</span>
+		<div id="active-filters" class="filter-bar__chips" aria-live="polite"></div>
+		<button type="button" id="clear-filters-btn" class="filter-bar__clear">Clear</button>
+	</div>
 
 	<main>
 		<div id = "alert-container">

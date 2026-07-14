@@ -2,8 +2,13 @@
   "alerts": [
     {
       "Labels": {
+        "alertname": "ScrapeFailed",
         "severity": "crit",
-		"job": "up"
+        "job": "up",
+        "instance": "metrics.k8s.example.lan",
+        "cluster": "prod-eu",
+        "namespace": "monitoring",
+        "team": "platform"
       },
       "Annotations": {
         "summary": "Failed to scrape state metrics: metrics.k8s.example.lan"
@@ -11,9 +16,15 @@
     },
     {
       "Labels": {
+        "alertname": "DiskSpaceHigh",
         "severity": "severe",
-		"job": "disk-space",
-		"server": "server1.example.lan"
+        "job": "disk-space",
+        "instance": "server1.example.lan:9100",
+        "server": "server1.example.lan",
+        "mountpoint": "/var",
+        "cluster": "prod-eu",
+        "team": "infra",
+        "env": "production"
       },
       "Annotations": {
         "summary": "Disk space > 90% on server1.example.lan"
@@ -21,9 +32,14 @@
     },
     {
       "Labels": {
+        "alertname": "TargetDown",
         "severity": "severe",
-		"job": "up",
-		"server": "server2.example.lan"
+        "job": "up",
+        "instance": "server2.example.lan:9100",
+        "server": "server2.example.lan",
+        "cluster": "prod-eu",
+        "team": "infra",
+        "env": "production"
       },
       "Annotations": {
         "summary": "Target down: server2.example.lan"
@@ -31,9 +47,14 @@
     },
     {
       "Labels": {
+        "alertname": "TargetDown",
         "severity": "severe",
-		"job": "up",
-		"server": "server2.example.lan"
+        "job": "up",
+        "instance": "server3.example.lan:9100",
+        "server": "server3.example.lan",
+        "cluster": "prod-us",
+        "team": "infra",
+        "env": "production"
       },
       "Annotations": {
         "summary": "Target down: server3.example.lan"
@@ -41,9 +62,14 @@
     },
     {
       "Labels": {
+        "alertname": "TargetDown",
         "severity": "severe",
-		"job": "up",
-		"server": "server2.example.lan"
+        "job": "up",
+        "instance": "server4.example.lan:9100",
+        "server": "server4.example.lan",
+        "cluster": "staging",
+        "team": "infra",
+        "env": "staging"
       },
       "Annotations": {
         "summary": "Target down: server4.example.lan"
@@ -51,9 +77,16 @@
     },
     {
       "Labels": {
+        "alertname": "KubePodNotReady",
         "severity": "warning",
-		"job": "kube-state-metrics",
-		"instance": "kube-state-metrics.example.lan"
+        "job": "kube-state-metrics",
+        "instance": "kube-state-metrics.example.lan",
+        "namespace": "observability",
+        "pod": "grafana-0",
+        "container": "grafana",
+        "image": "docker.io/grafana/grafana:latest",
+        "cluster": "prod-eu",
+        "team": "observability"
       },
       "Annotations": {
         "summary": "Non-running container: docker.io/grafana/grafana:latest"
@@ -61,9 +94,16 @@
     },
     {
       "Labels": {
+        "alertname": "KubePodNotReady",
         "severity": "warning",
-		"job": "kube-state-metrics",
-		"instance": "kube-state-metrics.example.lan"
+        "job": "kube-state-metrics",
+        "instance": "kube-state-metrics.example.lan",
+        "namespace": "dns",
+        "pod": "duckdns-7d9f8c",
+        "container": "duckdns",
+        "image": "docker.io/linuxserver/duckdns",
+        "cluster": "prod-eu",
+        "team": "networking"
       },
       "Annotations": {
         "summary": "Non-running container: docker.io/linuxserver/duckdns"
@@ -71,8 +111,14 @@
     },
     {
       "Labels": {
+        "alertname": "LowUtilization",
         "severity": "important",
-        "server": "server5.example.lan"
+        "job": "node-exporter",
+        "instance": "server9.example.lan:9100",
+        "server": "server9.example.lan",
+        "cluster": "prod-us",
+        "team": "capacity",
+        "env": "production"
       },
       "Annotations": {
         "summary": "Utilization on server9 is only 15%"
@@ -80,8 +126,14 @@
     },
     {
       "Labels": {
+        "alertname": "ClockSkew",
         "severity": "info",
-		"server": "server1.example.lan"
+        "job": "node-exporter",
+        "instance": "server1.example.lan:9100",
+        "server": "server1.example.lan",
+        "cluster": "prod-eu",
+        "team": "infra",
+        "env": "production"
       },
       "Annotations": {
         "summary": "Time sync on server 1 is behind by 1337 seconds"
