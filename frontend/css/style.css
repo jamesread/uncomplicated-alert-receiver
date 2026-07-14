@@ -122,7 +122,7 @@
 
 header .critical {
   background-color: var(--status-sev1-bg);
-  color: black !sev4;
+  color: black !important;
   font-weight: bold;
 }
 
