@@ -44,8 +44,12 @@ func ReceiveWebhook(w http.ResponseWriter, req *http.Request) {
 
 	newAlerts := make(map[string]*Alert, len(webhook.Alerts))
 	for i := range webhook.Alerts {
-		handleAlert(&webhook.Alerts[i])
-		newAlerts[alertKey(&webhook.Alerts[i])] = &webhook.Alerts[i]
+		alert := &webhook.Alerts[i]
+		if alert.Status == "resolved" {
+			continue
+		}
+		handleAlert(alert)
+		newAlerts[alertKey(alert)] = alert
 	}
 
 	alertMu.Lock()

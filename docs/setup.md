@@ -9,7 +9,7 @@ receivers:
   - name: uar
     webhook_configs:
       - url: http://yourServer:8080/alerts
-        send_resolved: false
+        send_resolved: true
 
 route:
   receiver: uar
@@ -18,6 +18,8 @@ route:
 ```
 
 Of course you are free to set the sending intervals to a duration that fits you.
+
+`send_resolved: true` lets Alertmanager tell UAR when alerts clear, so the board empties correctly. Alertmanager only pushes when something changes (or on `repeat_interval` while alerts are still firing) — it does not send idle heartbeats when nothing is firing. UAR only treats a stale “Last result” as a warning while alerts are currently shown.
 
 ## Next steps
 

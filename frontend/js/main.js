@@ -354,6 +354,8 @@ function renderLastUpdated (res) {
   const lastUpdatedEl = document.getElementById('last-updated')
   lastUpdatedEl.classList.remove('critical', 'info')
 
+  const alertCount = res.Alerts ? Object.keys(res.Alerts).length : 0
+
   if (res.LastUpdated > 0) {
     const lastUpdatedDate = new Date(res.LastUpdated * 1000)
     const deltaLastUpdated = Math.floor((lastUpdatedDate - new Date()) / 1000)
@@ -361,7 +363,7 @@ function renderLastUpdated (res) {
     lastUpdatedEl.textContent = formatCompactAge(deltaLastUpdated)
     lastUpdatedEl.title = 'Last payload from AlertManager: ' + lastUpdatedDate.toLocaleString()
 
-    if (deltaLastUpdated < -100) {
+    if (deltaLastUpdated < -100 && alertCount > 0) {
       lastUpdatedEl.classList.add('critical')
     } else if (deltaLastUpdated > 0) {
       lastUpdatedEl.classList.add('info')
