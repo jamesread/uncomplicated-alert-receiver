@@ -15,15 +15,17 @@ const DRAW_LABELS_STORAGE_KEY = 'uar.drawLabels'
 window.drawLabels = loadDrawLabelsPreference()
 window.labelFilters = []
 window.lastAlertResponse = null
+window.settingsReady = false
 
 export default function main () {
   window.baseUrl = window.location.origin
 
-  window.timeUntilNextUpdate = 0
+  window.timeUntilNextUpdate = 30
 
   window.intervalTimer = setInterval(updateProgressBar, 1000)
 
   updateSettings()
+  fetchAlertList()
   setupDropdownMenu()
   setupFullscreenButton()
   setupToggleLabelsButton()
@@ -153,8 +155,10 @@ function updateSettings () {
       if (!Array.isArray(window.settings.IgnoredLabels)) {
         window.settings.IgnoredLabels = []
       }
+      window.settingsReady = true
       document.getElementById('current-version').innerHTML = 'Version: ' + res.Version
       updateToggleLabelsButton()
+      renderAlertList()
     })
     .catch(error => {
       console.error('Fetch error:', error)
@@ -178,9 +182,6 @@ function updateProgressBar () {
 }
 
 function fetchAlertList () {
-  const alertList = document.getElementById('alert-list')
-  alertList.innerHTML = ''
-
   window.fetch(window.baseUrl + '/api/alert_list', {
     headers: { Accept: 'application/json' }
   })
@@ -194,8 +195,10 @@ function fetchAlertList () {
       if (window.hideOfflineMessage) window.hideOfflineMessage()
 
       window.lastAlertResponse = res
-      renderAlertList()
       renderLastUpdated(res)
+      if (window.settingsReady) {
+        renderAlertList()
+      }
     }).catch(error => {
       console.error('Fetch error:', error)
 
@@ -209,7 +212,7 @@ function fetchAlertList () {
 
 function renderAlertList () {
   const alertList = document.getElementById('alert-list')
-  if (!alertList) return
+  if (!alertList || !window.settingsReady) return
 
   alertList.innerHTML = ''
 
