@@ -105,50 +105,65 @@ func TestReceiveWebhook_invalidPayloadPreservesExistingAlerts(t *testing.T) {
 	}
 }
 
-func TestReceiveWebhook_replacesAlertsOnValidPayload(t *testing.T) {
+func TestReceiveWebhook_mergesGroupedFiringAlerts(t *testing.T) {
 	resetAlertsForTest(t)
 
-	seedAlerts(t, map[string]*Alert{
-		"old": {Annotations: map[string]string{"summary": "old"}},
-	})
+	rec1 := postWebhook(t, `{
+		"alerts": [
+			{
+				"status": "firing",
+				"fingerprint": "group-a",
+				"annotations": {"summary": "A"}
+			}
+		]
+	}`)
+	if rec1.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rec1.Code, http.StatusOK)
+	}
 
-	rec := postWebhook(t, `{"alerts":[{"annotations":{"summary":"new"}}]}`)
-	if rec.Code != http.StatusOK {
-		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
+	rec2 := postWebhook(t, `{
+		"alerts": [
+			{
+				"status": "firing",
+				"fingerprint": "group-b",
+				"annotations": {"summary": "B"}
+			}
+		]
+	}`)
+	if rec2.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rec2.Code, http.StatusOK)
 	}
 
 	alertMu.RLock()
 	defer alertMu.RUnlock()
 
-	if len(alertMap) != 1 {
-		t.Fatalf("alert count = %d, want 1", len(alertMap))
+	if len(alertMap) != 2 {
+		t.Fatalf("alert count = %d, want 2", len(alertMap))
 	}
-	if alertMap["new"] == nil {
-		t.Fatal("expected new alert")
+	if alertMap["group-a"] == nil {
+		t.Fatal("expected group-a to remain after second group webhook")
 	}
-	if alertMap["old"] != nil {
-		t.Fatal("expected old alert to be removed")
+	if alertMap["group-b"] == nil {
+		t.Fatal("expected group-b to be merged in")
 	}
 }
 
-func TestReceiveWebhook_skipsResolvedAlerts(t *testing.T) {
+func TestReceiveWebhook_resolvedRemovesAlertKeepsOthers(t *testing.T) {
 	resetAlertsForTest(t)
 
-	seedAlerts(t, map[string]*Alert{
-		"old": {Annotations: map[string]string{"summary": "old"}},
-	})
+	postWebhook(t, `{
+		"alerts": [
+			{"status": "firing", "fingerprint": "keep", "annotations": {"summary": "still firing"}},
+			{"status": "firing", "fingerprint": "drop", "annotations": {"summary": "will resolve"}}
+		]
+	}`)
 
 	rec := postWebhook(t, `{
 		"alerts": [
 			{
-				"status": "firing",
-				"fingerprint": "keep",
-				"annotations": {"summary": "still firing"}
-			},
-			{
 				"status": "resolved",
 				"fingerprint": "drop",
-				"annotations": {"summary": "was resolved"}
+				"annotations": {"summary": "will resolve"}
 			},
 			{
 				"annotations": {"summary": "legacy no status"}
@@ -172,10 +187,7 @@ func TestReceiveWebhook_skipsResolvedAlerts(t *testing.T) {
 		t.Fatal("expected alert with empty status")
 	}
 	if alertMap["drop"] != nil {
-		t.Fatal("expected resolved alert to be skipped")
-	}
-	if alertMap["old"] != nil {
-		t.Fatal("expected previous alerts to be replaced")
+		t.Fatal("expected resolved alert to be removed")
 	}
 	if lastUpdated == 0 {
 		t.Fatal("expected lastUpdated to be set")
@@ -185,16 +197,17 @@ func TestReceiveWebhook_skipsResolvedAlerts(t *testing.T) {
 func TestReceiveWebhook_allResolvedClearsAlerts(t *testing.T) {
 	resetAlertsForTest(t)
 
-	seedAlerts(t, map[string]*Alert{
-		"old": {Annotations: map[string]string{"summary": "old"}},
-	})
+	postWebhook(t, `{
+		"alerts": [
+			{"status": "firing", "fingerprint": "fp1", "annotations": {"summary": "one"}},
+			{"status": "firing", "fingerprint": "fp2", "annotations": {"summary": "two"}}
+		]
+	}`)
 
 	rec := postWebhook(t, `{
 		"alerts": [
-			{
-				"status": "resolved",
-				"annotations": {"summary": "gone"}
-			}
+			{"status": "resolved", "fingerprint": "fp1", "annotations": {"summary": "one"}},
+			{"status": "resolved", "fingerprint": "fp2", "annotations": {"summary": "two"}}
 		]
 	}`)
 	if rec.Code != http.StatusOK {
@@ -207,8 +220,40 @@ func TestReceiveWebhook_allResolvedClearsAlerts(t *testing.T) {
 	if len(alertMap) != 0 {
 		t.Fatalf("alert count = %d, want 0", len(alertMap))
 	}
-	if lastUpdated == 0 || lastUpdated == 42 {
-		t.Fatalf("lastUpdated = %d, want a fresh timestamp", lastUpdated)
+	if lastUpdated == 0 {
+		t.Fatal("expected lastUpdated to be set")
+	}
+}
+
+func TestReceiveWebhook_emptyAlertsUpdatesLastUpdatedOnly(t *testing.T) {
+	resetAlertsForTest(t)
+
+	postWebhook(t, `{
+		"alerts": [
+			{"status": "firing", "fingerprint": "fp1", "annotations": {"summary": "one"}}
+		]
+	}`)
+
+	alertMu.RLock()
+	before := lastUpdated
+	alertMu.RUnlock()
+
+	rec := postWebhook(t, `{"alerts":[]}`)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
+	}
+
+	alertMu.RLock()
+	defer alertMu.RUnlock()
+
+	if len(alertMap) != 1 {
+		t.Fatalf("alert count = %d, want 1", len(alertMap))
+	}
+	if alertMap["fp1"] == nil {
+		t.Fatal("expected existing alert to remain")
+	}
+	if lastUpdated < before {
+		t.Fatalf("lastUpdated = %d, want >= %d", lastUpdated, before)
 	}
 }
 

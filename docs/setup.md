@@ -19,7 +19,7 @@ route:
 
 Of course you are free to set the sending intervals to a duration that fits you.
 
-`send_resolved: true` lets Alertmanager tell UAR when alerts clear, so the board empties correctly. Alertmanager only pushes when something changes (or on `repeat_interval` while alerts are still firing) — it does not send idle heartbeats when nothing is firing. UAR only treats a stale “Last result” as a warning while alerts are currently shown.
+`send_resolved: true` is required so Alertmanager tells UAR when alerts clear and they can be removed from the board. UAR merges webhook notifications by alert fingerprint, so Alertmanager `group_by` routes work — each group updates or removes only its own alerts instead of replacing the whole board. Alertmanager only pushes when something changes (or on `repeat_interval` while alerts are still firing) — it does not send idle heartbeats when nothing is firing. UAR only treats a stale “Last result” as a warning while alerts are currently shown.
 
 ## Next steps
 

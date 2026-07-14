@@ -42,18 +42,19 @@ func ReceiveWebhook(w http.ResponseWriter, req *http.Request) {
 
 	log.Infof("Webhook: %+v", webhook)
 
-	newAlerts := make(map[string]*Alert, len(webhook.Alerts))
+	alertMu.Lock()
 	for i := range webhook.Alerts {
 		alert := &webhook.Alerts[i]
+		key := alertKey(alert)
+
 		if alert.Status == "resolved" {
+			delete(alertMap, key)
 			continue
 		}
-		handleAlert(alert)
-		newAlerts[alertKey(alert)] = alert
-	}
 
-	alertMu.Lock()
-	alertMap = newAlerts
+		handleAlert(alert)
+		alertMap[key] = alert
+	}
 	lastUpdated = time.Now().Unix()
 	alertMu.Unlock()
 
