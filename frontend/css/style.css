@@ -179,7 +179,8 @@ a:focus {
 
 span.label,
 button.label {
-  font-size: smaller;
+  font: inherit;
+  font-size: 0.8em;
   color: rgba(0, 0, 0, 0.7);
   display: inline-flex;
   max-width: 100%;
@@ -189,7 +190,6 @@ button.label {
   border: none;
   background: none;
   padding: 0;
-  font: inherit;
   white-space: nowrap;
   vertical-align: bottom;
   overflow: hidden;
