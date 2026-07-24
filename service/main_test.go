@@ -26,6 +26,7 @@ func TestGetListenAddress(t *testing.T) {
 
 func TestGetSettings(t *testing.T) {
 	t.Setenv("DRAW_LABELS", "")
+	t.Setenv("CORS_ORIGIN", "")
 	for _, key := range []string{
 		"SEV_LABELS_1",
 		"SEV_LABELS_2",
@@ -44,8 +45,8 @@ func TestGetSettings(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
 	}
-	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {
-		t.Fatalf("CORS header = %q, want *", got)
+	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "" {
+		t.Fatalf("CORS header = %q, want empty by default", got)
 	}
 
 	var settings Settings
@@ -82,6 +83,38 @@ func TestGetSettings_drawLabelsEnabled(t *testing.T) {
 	if !settings.DrawLabels {
 		t.Fatal("DrawLabels should be true when env var is set")
 	}
+}
+
+func TestGetSettings_corsOrigin(t *testing.T) {
+	t.Run("default empty", func(t *testing.T) {
+		t.Setenv("CORS_ORIGIN", "")
+		req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+		rec := httptest.NewRecorder()
+		getSettings(rec, req)
+		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "" {
+			t.Fatalf("CORS header = %q, want empty", got)
+		}
+	})
+
+	t.Run("custom origin", func(t *testing.T) {
+		t.Setenv("CORS_ORIGIN", "https://noc.example.com")
+		req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+		rec := httptest.NewRecorder()
+		getSettings(rec, req)
+		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "https://noc.example.com" {
+			t.Fatalf("CORS header = %q, want https://noc.example.com", got)
+		}
+	})
+
+	t.Run("wildcard", func(t *testing.T) {
+		t.Setenv("CORS_ORIGIN", "*")
+		req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+		rec := httptest.NewRecorder()
+		getSettings(rec, req)
+		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {
+			t.Fatalf("CORS header = %q, want *", got)
+		}
+	})
 }
 
 func TestFindWebuiDir(t *testing.T) {

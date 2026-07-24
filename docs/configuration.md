@@ -8,6 +8,20 @@ UAR is designed so that it very much works "out of the box" and with zero config
 
 This is the browser URL to get to alertmanager. If you set this, alert links will be clickable. eg: `https://am.webapps.example.com`.
 
+### `WEBHOOK_TOKEN` Environment Variable
+
+Optional shared secret for `POST /alerts`. When set, Alertmanager (or any client) must send `Authorization: Bearer <token>`. When unset, the webhook stays open — keep UAR on a trusted network in that case.
+
+The UI and `/api/*` read endpoints stay unauthenticated on purpose; place them behind your network perimeter (VPN, reverse proxy allowlist, etc.).
+
+### `CORS_ORIGIN` Environment Variable
+
+Controls the `Access-Control-Allow-Origin` header on `/api/settings` and `/api/alert_list`.
+
+* Unset or empty (default): no CORS header (same-origin UI works as usual).
+* A concrete origin (eg. `https://noc.example.com`): that origin is allowed.
+* `*`: restore the previous open CORS behaviour if you need it.
+
 ### `SEV_LABELS_...` Environment Variables
 
 The default severity labels are;
@@ -25,3 +39,10 @@ When set to any non-empty value, UAR will show Prometheus labels on each alert b
 ### `IGNORED_LABELS` Environment Variable
 
 A comma-separated list of label names that should not be drawn when labels are shown. The default is `alertname,instance,job,severity`.
+
+## Built-in limits
+
+Webhook requests are capped to protect memory:
+
+* Request body: **1 MiB** maximum (larger payloads return `413`).
+* Stored alerts: **1000** maximum distinct alerts. Updates and resolves for existing alerts still work at capacity; inserting a new alert when full returns `503` so Alertmanager can retry.

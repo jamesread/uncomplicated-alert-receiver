@@ -20,9 +20,17 @@ func resetAlertsForTest(t *testing.T) {
 
 func postWebhook(t *testing.T, body string) *httptest.ResponseRecorder {
 	t.Helper()
+	return postWebhookWithAuth(t, body, "")
+}
+
+func postWebhookWithAuth(t *testing.T, body string, bearerToken string) *httptest.ResponseRecorder {
+	t.Helper()
 
 	req := httptest.NewRequest(http.MethodPost, "/alerts", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	if bearerToken != "" {
+		req.Header.Set("Authorization", "Bearer "+bearerToken)
+	}
 	rec := httptest.NewRecorder()
 	ReceiveWebhook(rec, req)
 	return rec
@@ -259,6 +267,7 @@ func TestReceiveWebhook_emptyAlertsUpdatesLastUpdatedOnly(t *testing.T) {
 
 func TestGetAllAlerts(t *testing.T) {
 	resetAlertsForTest(t)
+	t.Setenv("CORS_ORIGIN", "")
 
 	seedAlerts(t, map[string]*Alert{
 		"Disk full": {
@@ -275,8 +284,8 @@ func TestGetAllAlerts(t *testing.T) {
 	if rec.Code != http.StatusOK {
 		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
 	}
-	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {
-		t.Fatalf("CORS header = %q, want *", got)
+	if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "" {
+		t.Fatalf("CORS header = %q, want empty by default", got)
 	}
 
 	var res AlertListResponse
@@ -422,5 +431,145 @@ func TestGetAllAlerts_empty(t *testing.T) {
 	}
 	if len(res.Alerts) != 0 {
 		t.Fatalf("alert count = %d, want 0", len(res.Alerts))
+	}
+}
+
+func TestReceiveWebhook_authOptionalWhenTokenUnset(t *testing.T) {
+	resetAlertsForTest(t)
+	t.Setenv("WEBHOOK_TOKEN", "")
+
+	rec := postWebhook(t, `{"alerts":[{"fingerprint":"open","annotations":{"summary":"x"}}]}`)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusOK)
+	}
+}
+
+func TestReceiveWebhook_authRejectsMissingOrWrongToken(t *testing.T) {
+	resetAlertsForTest(t)
+	t.Setenv("WEBHOOK_TOKEN", "secret-token")
+
+	existing := &Alert{Annotations: map[string]string{"summary": "keep"}}
+	seedAlerts(t, map[string]*Alert{"keep": existing})
+
+	missing := postWebhook(t, `{"alerts":[{"fingerprint":"evil","annotations":{"summary":"nope"}}]}`)
+	if missing.Code != http.StatusUnauthorized {
+		t.Fatalf("missing token status = %d, want %d", missing.Code, http.StatusUnauthorized)
+	}
+
+	wrong := postWebhookWithAuth(t, `{"alerts":[{"fingerprint":"evil","annotations":{"summary":"nope"}}]}`, "wrong")
+	if wrong.Code != http.StatusUnauthorized {
+		t.Fatalf("wrong token status = %d, want %d", wrong.Code, http.StatusUnauthorized)
+	}
+
+	alertMu.RLock()
+	defer alertMu.RUnlock()
+	if len(alertMap) != 1 || alertMap["keep"] != existing {
+		t.Fatal("store mutated after unauthorized request")
+	}
+}
+
+func TestReceiveWebhook_authAcceptsMatchingBearer(t *testing.T) {
+	resetAlertsForTest(t)
+	t.Setenv("WEBHOOK_TOKEN", "secret-token")
+
+	rec := postWebhookWithAuth(t, `{"alerts":[{"fingerprint":"ok","annotations":{"summary":"x"}}]}`, "secret-token")
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body = %q", rec.Code, http.StatusOK, rec.Body.String())
+	}
+
+	alertMu.RLock()
+	defer alertMu.RUnlock()
+	if alertMap["ok"] == nil {
+		t.Fatal("expected alert ok to be stored")
+	}
+}
+
+func TestGetAllAlerts_corsOrigin(t *testing.T) {
+	resetAlertsForTest(t)
+
+	t.Run("custom origin", func(t *testing.T) {
+		t.Setenv("CORS_ORIGIN", "https://noc.example.com")
+		req := httptest.NewRequest(http.MethodGet, "/api/alert_list", nil)
+		rec := httptest.NewRecorder()
+		GetAllAlerts(rec, req)
+		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "https://noc.example.com" {
+			t.Fatalf("CORS header = %q, want https://noc.example.com", got)
+		}
+	})
+
+	t.Run("wildcard", func(t *testing.T) {
+		t.Setenv("CORS_ORIGIN", "*")
+		req := httptest.NewRequest(http.MethodGet, "/api/alert_list", nil)
+		rec := httptest.NewRecorder()
+		GetAllAlerts(rec, req)
+		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {
+			t.Fatalf("CORS header = %q, want *", got)
+		}
+	})
+}
+
+func TestReceiveWebhook_bodyTooLarge(t *testing.T) {
+	resetAlertsForTest(t)
+
+	existing := &Alert{Annotations: map[string]string{"summary": "keep"}}
+	seedAlerts(t, map[string]*Alert{"keep": existing})
+
+	oversized := `{"alerts":[{"fingerprint":"x","annotations":{"summary":"` + strings.Repeat("a", MaxWebhookBodyBytes) + `"}}]}`
+	rec := postWebhook(t, oversized)
+	if rec.Code != http.StatusRequestEntityTooLarge {
+		t.Fatalf("status = %d, want %d", rec.Code, http.StatusRequestEntityTooLarge)
+	}
+
+	alertMu.RLock()
+	defer alertMu.RUnlock()
+	if len(alertMap) != 1 || alertMap["keep"] != existing {
+		t.Fatal("store mutated after oversized body")
+	}
+}
+
+func TestReceiveWebhook_alertCapRejectsNewAllowsUpdateAndResolve(t *testing.T) {
+	resetAlertsForTest(t)
+	prev := maxAlerts
+	maxAlerts = 2
+	t.Cleanup(func() { maxAlerts = prev })
+
+	seedAlerts(t, map[string]*Alert{
+		"a": {Fingerprint: "a", Annotations: map[string]string{"summary": "a"}},
+		"b": {Fingerprint: "b", Annotations: map[string]string{"summary": "b"}},
+	})
+
+	reject := postWebhook(t, `{"alerts":[{"status":"firing","fingerprint":"c","annotations":{"summary":"c"}}]}`)
+	if reject.Code != http.StatusServiceUnavailable {
+		t.Fatalf("new alert status = %d, want %d", reject.Code, http.StatusServiceUnavailable)
+	}
+
+	update := postWebhook(t, `{"alerts":[{"status":"firing","fingerprint":"a","annotations":{"summary":"a-updated"}}]}`)
+	if update.Code != http.StatusOK {
+		t.Fatalf("update status = %d, want %d", update.Code, http.StatusOK)
+	}
+
+	resolveAndAdd := postWebhook(t, `{
+		"alerts": [
+			{"status":"resolved","fingerprint":"b","annotations":{"summary":"b"}},
+			{"status":"firing","fingerprint":"c","annotations":{"summary":"c"}}
+		]
+	}`)
+	if resolveAndAdd.Code != http.StatusOK {
+		t.Fatalf("resolve+add status = %d, want %d; body = %q", resolveAndAdd.Code, http.StatusOK, resolveAndAdd.Body.String())
+	}
+
+	alertMu.RLock()
+	defer alertMu.RUnlock()
+	if len(alertMap) != 2 {
+		t.Fatalf("alert count = %d, want 2", len(alertMap))
+	}
+	if alertMap["a"] == nil || alertMap["a"].Annotations["summary"] != "a-updated" {
+		t.Fatal("expected alert a to be updated")
+	}
+	if alertMap["b"] != nil {
+		t.Fatal("expected alert b to be resolved")
+	}
+	if alertMap["c"] == nil {
+		t.Fatal("expected alert c to be added after resolve freed capacity")
 	}
 }

@@ -9,4 +9,4 @@
 
 ## Reporting a Vulnerability
 
-Please report security issues via GitHub issues, or contacting jamesread via http://jread.com. 
+Please report security issues via GitHub issues, or contacting jamesread via http://jread.com.

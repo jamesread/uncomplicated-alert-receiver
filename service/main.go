@@ -33,7 +33,7 @@ type Settings struct {
 }
 
 func getSettings(w http.ResponseWriter, req *http.Request) {
-	w.Header().Set("Access-Control-Allow-Origin", "*")
+	receiver.SetCORSOrigin(w)
 
 	config := runtimeconfig.Get()
 
