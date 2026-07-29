@@ -58,7 +58,11 @@
 	<div id="filter-bar" class="filter-bar" hidden>
 		<span class="filter-bar__label">Filters:</span>
 		<div id="active-filters" class="filter-bar__chips" aria-live="polite"></div>
-		<button type="button" id="clear-filters-btn" class="filter-bar__clear">Clear</button>
+		<button type="button" id="edit-filters-btn" class="filter-bar__btn">Edit</button>
+		<button type="button" id="clear-filters-btn" class="filter-bar__btn">Clear</button>
+		<form id="filter-edit-form" class="filter-bar__edit-form" hidden>
+			<input type="text" id="filter-edit-input" class="filter-bar__input" placeholder="key=value key2=value2" aria-label="Edit filters" autocomplete="off" spellcheck="false">
+		</form>
 	</div>
 
 	<main>

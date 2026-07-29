@@ -1,0 +1,63 @@
+version: "2"
+
+run:
+  timeout: 5m
+  tests: true
+
+linters:
+  default: none
+  enable:
+    - bidichk
+    - bodyclose
+    - copyloopvar
+    - durationcheck
+    - errcheck
+    - errorlint
+    - gocritic
+    - gocyclo
+    - gosec
+    - govet
+    - ineffassign
+    - misspell
+#    - modernize
+    - nilerr
+    - noctx
+#    - promlinter
+    - staticcheck
+#    - testifylint
+    - thelper
+    - unconvert
+#    - unparam
+    - unused
+    - usestdlibvars
+  settings:
+    gocyclo:
+      min-complexity: 5
+    gosec:
+      # Full gosec rule set (G101–G6xx), including Slowloris checks G112/G114.
+      enable-all-rules: true
+    govet:
+      enable-all: true
+  exclusions:
+    paths:
+      - gen
+    rules:
+      # Noise / fixtures in tests.
+      - path: _test\.go
+        linters:
+          - gosec
+      - path: _test\.go
+        text: "fieldalignment:"
+        linters:
+          - govet
+      # Assertion-heavy tests inflate cyclomatic complexity without reflecting
+      # production control-flow risk.
+      - path: _test\.go
+        linters:
+          - gocyclo
+
+      # Web UI directory is resolved from known relative paths next to the binary.
+      - path: main\.go
+        text: "G304:"
+        linters:
+          - gosec

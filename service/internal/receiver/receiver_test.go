@@ -2,6 +2,7 @@ package receiver
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -26,7 +27,7 @@ func postWebhook(t *testing.T, body string) *httptest.ResponseRecorder {
 func postWebhookWithAuth(t *testing.T, body string, bearerToken string) *httptest.ResponseRecorder {
 	t.Helper()
 
-	req := httptest.NewRequest(http.MethodPost, "/alerts", strings.NewReader(body))
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodPost, "/alerts", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	if bearerToken != "" {
 		req.Header.Set("Authorization", "Bearer "+bearerToken)
@@ -277,7 +278,7 @@ func TestGetAllAlerts(t *testing.T) {
 		},
 	})
 
-	req := httptest.NewRequest(http.MethodGet, "/api/alert_list", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/alert_list", nil)
 	rec := httptest.NewRecorder()
 	GetAllAlerts(rec, req)
 
@@ -417,7 +418,7 @@ func TestReceiveWebhook_alertManagerURLSetOnStoredAlerts(t *testing.T) {
 func TestGetAllAlerts_empty(t *testing.T) {
 	resetAlertsForTest(t)
 
-	req := httptest.NewRequest(http.MethodGet, "/api/alert_list", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/alert_list", nil)
 	rec := httptest.NewRecorder()
 	GetAllAlerts(rec, req)
 
@@ -489,7 +490,7 @@ func TestGetAllAlerts_corsOrigin(t *testing.T) {
 
 	t.Run("custom origin", func(t *testing.T) {
 		t.Setenv("CORS_ORIGIN", "https://noc.example.com")
-		req := httptest.NewRequest(http.MethodGet, "/api/alert_list", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/alert_list", nil)
 		rec := httptest.NewRecorder()
 		GetAllAlerts(rec, req)
 		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "https://noc.example.com" {
@@ -499,7 +500,7 @@ func TestGetAllAlerts_corsOrigin(t *testing.T) {
 
 	t.Run("wildcard", func(t *testing.T) {
 		t.Setenv("CORS_ORIGIN", "*")
-		req := httptest.NewRequest(http.MethodGet, "/api/alert_list", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/alert_list", nil)
 		rec := httptest.NewRecorder()
 		GetAllAlerts(rec, req)
 		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {

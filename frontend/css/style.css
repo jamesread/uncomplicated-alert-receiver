@@ -258,13 +258,91 @@ button.label span.val {
   flex-wrap: wrap;
   gap: 0.4em;
   flex: 1;
+  align-items: center;
+}
+
+.filter-bar__chips[hidden] {
+  display: none;
 }
 
 .filter-bar__chips .label {
   margin-top: 0;
+  margin-right: 0;
+  cursor: default;
 }
 
-.filter-bar__clear {
+.filter-bar__chips .label span.key {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.filter-bar__chips .label span.val {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.filter-bar__chips .label:hover span.key {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.filter-bar__chips .label:hover span.val {
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.filter-bar__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.filter-bar__chip-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid #bbb;
+  color: #333;
+  border-radius: 0.35em;
+  padding: 0.15em;
+  cursor: pointer;
+  line-height: 0;
+}
+
+.filter-bar__chip-close:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+  border-color: #888;
+}
+
+.filter-bar__chip-close svg {
+  display: block;
+}
+
+.filter-bar__edit-form {
+  flex: 1 1 100%;
+  width: 100%;
+  margin: 0;
+}
+
+.filter-bar__edit-form[hidden] {
+  display: none;
+}
+
+.filter-bar__input {
+  width: 100%;
+  box-sizing: border-box;
+  font: inherit;
+  font-size: smaller;
+  padding: 0.35em 0.6em;
+  border: 1px solid #bbb;
+  border-radius: 0.35em;
+  background: #fff;
+  color: #333;
+}
+
+.filter-bar__input:focus {
+  outline: 2px solid #666;
+  outline-offset: 1px;
+}
+
+.filter-bar__btn {
   background: transparent;
   border: 1px solid #bbb;
   color: #333;
@@ -275,7 +353,7 @@ button.label span.val {
   font-size: smaller;
 }
 
-.filter-bar__clear:hover {
+.filter-bar__btn:hover {
   background-color: rgba(0, 0, 0, 0.05);
   border-color: #888;
 }
@@ -287,34 +365,48 @@ button.label span.val {
     border-bottom-color: #555;
   }
 
-  .filter-bar__clear {
+  .filter-bar__btn,
+  .filter-bar__chip-close {
     border-color: #888;
     color: white;
   }
 
-  .filter-bar__clear:hover {
+  .filter-bar__btn:hover,
+  .filter-bar__chip-close:hover {
     background-color: rgba(255, 255, 255, 0.1);
     border-color: #bbb;
+  }
+
+  .filter-bar__input {
+    background: #222;
+    color: white;
+    border-color: #888;
+  }
+
+  .filter-bar__input:focus {
+    outline-color: #bbb;
   }
 
   .filter-bar .label {
     color: rgba(255, 255, 255, 0.85);
   }
 
-  .filter-bar .label span.key {
+  .filter-bar .label span.key,
+  .filter-bar__chips .label span.key {
     background-color: rgba(255, 255, 255, 0.18);
   }
 
-  .filter-bar .label span.val {
+  .filter-bar .label span.val,
+  .filter-bar__chips .label span.val {
     background-color: rgba(255, 255, 255, 0.1);
   }
 
-  .filter-bar .label:hover span.key {
-    background-color: rgba(255, 255, 255, 0.28);
+  .filter-bar__chips .label:hover span.key {
+    background-color: rgba(255, 255, 255, 0.18);
   }
 
-  .filter-bar .label:hover span.val {
-    background-color: rgba(255, 255, 255, 0.18);
+  .filter-bar__chips .label:hover span.val {
+    background-color: rgba(255, 255, 255, 0.1);
   }
 }
 

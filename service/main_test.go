@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -38,7 +39,7 @@ func TestGetSettings(t *testing.T) {
 		t.Setenv(key, "")
 	}
 
-	req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/settings", nil)
 	rec := httptest.NewRecorder()
 	getSettings(rec, req)
 
@@ -71,7 +72,7 @@ func TestGetSettings(t *testing.T) {
 func TestGetSettings_drawLabelsEnabled(t *testing.T) {
 	t.Setenv("DRAW_LABELS", "1")
 
-	req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/settings", nil)
 	rec := httptest.NewRecorder()
 	getSettings(rec, req)
 
@@ -88,7 +89,7 @@ func TestGetSettings_drawLabelsEnabled(t *testing.T) {
 func TestGetSettings_corsOrigin(t *testing.T) {
 	t.Run("default empty", func(t *testing.T) {
 		t.Setenv("CORS_ORIGIN", "")
-		req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/settings", nil)
 		rec := httptest.NewRecorder()
 		getSettings(rec, req)
 		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "" {
@@ -98,7 +99,7 @@ func TestGetSettings_corsOrigin(t *testing.T) {
 
 	t.Run("custom origin", func(t *testing.T) {
 		t.Setenv("CORS_ORIGIN", "https://noc.example.com")
-		req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/settings", nil)
 		rec := httptest.NewRecorder()
 		getSettings(rec, req)
 		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "https://noc.example.com" {
@@ -108,7 +109,7 @@ func TestGetSettings_corsOrigin(t *testing.T) {
 
 	t.Run("wildcard", func(t *testing.T) {
 		t.Setenv("CORS_ORIGIN", "*")
-		req := httptest.NewRequest(http.MethodGet, "/api/settings", nil)
+		req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/settings", nil)
 		rec := httptest.NewRecorder()
 		getSettings(rec, req)
 		if got := rec.Header().Get("Access-Control-Allow-Origin"); got != "*" {

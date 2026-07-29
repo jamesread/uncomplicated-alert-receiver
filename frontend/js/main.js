@@ -1,6 +1,7 @@
 'use strict'
 
-import 'femtocrank/style.css';
+import 'femtocrank/style.css'
+import { Cancel01Icon } from '@hugeicons/core-free-icons';
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   import('virtual:pwa-register').then(({ registerSW }) => {
@@ -14,6 +15,7 @@ window.settings = { DrawLabels: false, IgnoredLabels: [] }
 const DRAW_LABELS_STORAGE_KEY = 'uar.drawLabels'
 window.drawLabels = loadDrawLabelsPreference()
 window.labelFilters = []
+window.filterEditMode = false
 window.lastAlertResponse = null
 window.settingsReady = false
 
@@ -228,13 +230,31 @@ function renderAlertList () {
   }
 }
 
+function severityMatches (alertSeverity, filterSeverity) {
+  if (alertSeverity === filterSeverity) {
+    return true
+  }
+  if (!alertSeverity || !filterSeverity) {
+    return false
+  }
+  if (!severityWeighting.has(alertSeverity) || !severityWeighting.has(filterSeverity)) {
+    return false
+  }
+  return severityWeighting.get(alertSeverity) === severityWeighting.get(filterSeverity)
+}
+
 function alertMatchesFilters (alert) {
   if (!window.labelFilters.length) {
     return true
   }
 
   const labels = alert.Labels || {}
-  return window.labelFilters.every(filter => labels[filter.key] === filter.value)
+  return window.labelFilters.every(filter => {
+    if (filter.key === 'severity') {
+      return severityMatches(labels.severity, filter.value)
+    }
+    return labels[filter.key] === filter.value
+  })
 }
 
 function filterKey (key, value) {
@@ -248,6 +268,7 @@ function addLabelFilter (key, value) {
   }
 
   window.labelFilters.push({ key, value })
+  window.filterEditMode = false
   renderFilterBar()
   renderAlertList()
 }
@@ -261,8 +282,58 @@ function removeLabelFilter (key, value) {
 
 function clearLabelFilters () {
   window.labelFilters = []
+  window.filterEditMode = false
   renderFilterBar()
   renderAlertList()
+}
+
+function filtersToText (filters) {
+  return filters.map(f => filterKey(f.key, f.value)).join(' ')
+}
+
+function parseFiltersFromText (text) {
+  const filters = []
+  const seen = new Set()
+
+  for (const token of text.trim().split(/\s+/)) {
+    if (!token) continue
+
+    const eq = token.indexOf('=')
+    if (eq <= 0 || eq === token.length - 1) continue
+
+    const key = token.slice(0, eq)
+    const value = token.slice(eq + 1)
+    const id = filterKey(key, value)
+    if (seen.has(id)) continue
+
+    seen.add(id)
+    filters.push({ key, value })
+  }
+
+  return filters
+}
+
+function submitFilterEdit () {
+  const input = document.getElementById('filter-edit-input')
+  if (!input) return
+
+  window.labelFilters = parseFiltersFromText(input.value)
+  window.filterEditMode = false
+  renderFilterBar()
+  renderAlertList()
+}
+
+function setFilterEditMode (enabled) {
+  window.filterEditMode = enabled
+  renderFilterBar()
+
+  if (enabled) {
+    const input = document.getElementById('filter-edit-input')
+    if (input) {
+      input.focus()
+      input.select()
+    }
+  }
 }
 
 function createLabelElement (key, value, { onClick, title } = {}) {
@@ -295,34 +366,103 @@ function createLabelElement (key, value, { onClick, title } = {}) {
   return labelElement
 }
 
+function createHugeiconSvg (icon, { size = 16 } = {}) {
+  const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+  svg.setAttribute('width', String(size))
+  svg.setAttribute('height', String(size))
+  svg.setAttribute('viewBox', '0 0 24 24')
+  svg.setAttribute('fill', 'none')
+  svg.setAttribute('aria-hidden', 'true')
+
+  for (const [tag, attrs] of icon) {
+    const el = document.createElementNS('http://www.w3.org/2000/svg', tag)
+    for (const [name, value] of Object.entries(attrs)) {
+      if (name === 'key') continue
+      el.setAttribute(name, String(value))
+    }
+    svg.appendChild(el)
+  }
+
+  return svg
+}
+
+function createFilterChip (key, value) {
+  const chip = document.createElement('div')
+  chip.classList.add('filter-bar__chip')
+
+  chip.appendChild(createLabelElement(key, value))
+
+  const closeBtn = document.createElement('button')
+  closeBtn.type = 'button'
+  closeBtn.classList.add('filter-bar__chip-close')
+  closeBtn.setAttribute('aria-label', 'Remove filter ' + filterKey(key, value))
+  closeBtn.title = 'Remove filter'
+  closeBtn.appendChild(createHugeiconSvg(Cancel01Icon, { size: 14 }))
+  closeBtn.addEventListener('click', (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    removeLabelFilter(key, value)
+  })
+  chip.appendChild(closeBtn)
+
+  return chip
+}
+
 function renderFilterBar () {
   const filterBar = document.getElementById('filter-bar')
   const chips = document.getElementById('active-filters')
-  if (!filterBar || !chips) return
+  const editForm = document.getElementById('filter-edit-form')
+  const input = document.getElementById('filter-edit-input')
+  const editBtn = document.getElementById('edit-filters-btn')
+  if (!filterBar || !chips || !editForm || !input || !editBtn) return
 
   chips.innerHTML = ''
 
-  if (!window.labelFilters.length) {
+  const editing = window.filterEditMode
+  const hasFilters = window.labelFilters.length > 0
+
+  if (!hasFilters && !editing) {
     filterBar.hidden = true
+    editForm.hidden = true
+    chips.hidden = false
     return
   }
 
   filterBar.hidden = false
+  editForm.hidden = !editing
+  chips.hidden = editing
+
+  if (editing) {
+    input.value = filtersToText(window.labelFilters)
+    return
+  }
 
   for (const filter of window.labelFilters) {
-    chips.appendChild(createLabelElement(filter.key, filter.value, {
-      title: 'Remove filter',
-      onClick: () => removeLabelFilter(filter.key, filter.value)
-    }))
+    chips.appendChild(createFilterChip(filter.key, filter.value))
   }
 }
 
 function setupFilterBar () {
   const clearBtn = document.getElementById('clear-filters-btn')
-  if (!clearBtn) return
+  const editBtn = document.getElementById('edit-filters-btn')
+  const editForm = document.getElementById('filter-edit-form')
+  if (!clearBtn || !editBtn || !editForm) return
 
   clearBtn.addEventListener('click', () => {
     clearLabelFilters()
+  })
+
+  editBtn.addEventListener('click', () => {
+    if (window.filterEditMode) {
+      setFilterEditMode(false)
+    } else {
+      setFilterEditMode(true)
+    }
+  })
+
+  editForm.addEventListener('submit', (e) => {
+    e.preventDefault()
+    submitFilterEdit()
   })
 
   renderFilterBar()
@@ -398,7 +538,9 @@ function renderAlert (alert) {
     const ignored = (window.settings && window.settings.IgnoredLabels) || []
 
     for (const label of Object.keys(alert.Labels)) {
-      if (ignored.includes(label)) {
+      // Always show severity so it can be used for filtering; colour already
+      // conveys it, but the chip is needed to add/remove severity filters.
+      if (label !== 'severity' && ignored.includes(label)) {
         continue
       }
 

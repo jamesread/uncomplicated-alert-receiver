@@ -2,9 +2,11 @@ package main
 
 import (
 	"encoding/json"
-	log "github.com/sirupsen/logrus"
 	"net/http"
 	"os"
+	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/jamesread/uncomplicated-alert-receiver/internal/buildinfo"
 	"github.com/jamesread/uncomplicated-alert-receiver/internal/receiver"
@@ -27,9 +29,9 @@ func getListenAddress() string {
 
 type Settings struct {
 	Version        string
-	DrawLabels     bool
 	SeverityLabels map[string]int
 	IgnoredLabels  []string
+	DrawLabels     bool
 }
 
 func getSettings(w http.ResponseWriter, req *http.Request) {
@@ -47,7 +49,9 @@ func getSettings(w http.ResponseWriter, req *http.Request) {
 	log.Infof("Settings: %+v", ret)
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(ret)
+	if err := json.NewEncoder(w).Encode(ret); err != nil {
+		log.Errorf("Encode settings response: %v", err)
+	}
 }
 
 func findWebuiDir() string {
@@ -78,10 +82,19 @@ func main() {
 
 	log.Infof("WebUI dir: %v", webUiDir)
 
-	http.HandleFunc("/api/settings", getSettings)
-	http.HandleFunc("/api/alert_list", receiver.GetAllAlerts)
-	http.HandleFunc("/alerts", receiver.ReceiveWebhook)
-	http.Handle("/", http.FileServer(http.Dir(webUiDir)))
+	mux := http.NewServeMux()
+	mux.HandleFunc("/api/settings", getSettings)
+	mux.HandleFunc("/api/alert_list", receiver.GetAllAlerts)
+	mux.HandleFunc("/alerts", receiver.ReceiveWebhook)
+	mux.Handle("/", http.FileServer(http.Dir(webUiDir)))
 
-	log.Fatal(http.ListenAndServe(getListenAddress(), nil))
+	srv := &http.Server{
+		Addr:              getListenAddress(),
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       30 * time.Second,
+		WriteTimeout:      60 * time.Second,
+	}
+
+	log.Fatal(srv.ListenAndServe())
 }

@@ -54,6 +54,23 @@ func ReceiveWebhook(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	webhook, ok := decodeWebhook(w, req)
+	if !ok {
+		return
+	}
+
+	log.Infof("Webhook: %+v", webhook)
+
+	if !storeWebhookAlerts(webhook.Alerts) {
+		log.Errorf("Alert map at capacity (%d); rejecting webhook with new alerts", maxAlerts)
+		http.Error(w, "alert store at capacity", http.StatusServiceUnavailable)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func decodeWebhook(w http.ResponseWriter, req *http.Request) (Webhook, bool) {
 	limited := http.MaxBytesReader(w, req.Body, MaxWebhookBodyBytes)
 	body, err := io.ReadAll(limited)
 	if err != nil {
@@ -61,33 +78,33 @@ func ReceiveWebhook(w http.ResponseWriter, req *http.Request) {
 		if errors.As(err, &maxBytesErr) {
 			log.Errorf("Webhook body exceeds %d bytes", MaxWebhookBodyBytes)
 			http.Error(w, "request body too large", http.StatusRequestEntityTooLarge)
-			return
+			return Webhook{}, false
 		}
 		log.Errorf("Read body err: %v", err)
 		http.Error(w, "invalid request body", http.StatusBadRequest)
-		return
+		return Webhook{}, false
 	}
 
 	var webhook Webhook
 	if err := json.Unmarshal(body, &webhook); err != nil {
 		log.Errorf("Decode err: %v", err)
 		http.Error(w, "invalid JSON payload", http.StatusBadRequest)
-		return
+		return Webhook{}, false
 	}
 
-	log.Infof("Webhook: %+v", webhook)
+	return webhook, true
+}
 
+func storeWebhookAlerts(alerts []Alert) bool {
 	alertMu.Lock()
 	defer alertMu.Unlock()
 
-	if wouldExceedAlertCap(webhook.Alerts) {
-		log.Errorf("Alert map at capacity (%d); rejecting webhook with new alerts", maxAlerts)
-		http.Error(w, "alert store at capacity", http.StatusServiceUnavailable)
-		return
+	if wouldExceedAlertCap(alerts) {
+		return false
 	}
 
-	for i := range webhook.Alerts {
-		alert := &webhook.Alerts[i]
+	for i := range alerts {
+		alert := &alerts[i]
 		key := alertKey(alert)
 
 		if alert.Status == "resolved" {
@@ -100,7 +117,7 @@ func ReceiveWebhook(w http.ResponseWriter, req *http.Request) {
 	}
 	lastUpdated = time.Now().Unix()
 
-	w.WriteHeader(http.StatusOK)
+	return true
 }
 
 func authorizedWebhook(req *http.Request) bool {
@@ -194,10 +211,12 @@ func GetAllAlerts(w http.ResponseWriter, req *http.Request) {
 	alertMu.RUnlock()
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(res)
+	if err := json.NewEncoder(w).Encode(res); err != nil {
+		log.Errorf("Encode alert list response: %v", err)
+	}
 }
 
 type AlertListResponse struct {
-	LastUpdated int64
 	Alerts      map[string]*Alert
+	LastUpdated int64
 }
