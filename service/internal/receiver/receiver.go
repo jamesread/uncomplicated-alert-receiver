@@ -29,6 +29,7 @@ type Webhook struct {
 type Alert struct {
 	Status      string
 	Fingerprint string
+	StartsAt    time.Time
 	Annotations map[string]string
 	Labels      map[string]string
 	Metadata    struct {

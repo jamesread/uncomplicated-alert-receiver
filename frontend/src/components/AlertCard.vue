@@ -3,6 +3,7 @@ import { computed, onUnmounted, ref } from 'vue'
 import { HugeiconsIcon } from '@hugeicons/vue'
 import { Copy01Icon, Tick02Icon } from '@hugeicons/core-free-icons'
 import { copyText, formatAlertForLlm } from '../lib/alertClipboard.js'
+import { formatStartsAtAge } from '../lib/formatAge.js'
 
 const props = defineProps({
   href: {
@@ -10,6 +11,10 @@ const props = defineProps({
     default: '#'
   },
   summary: {
+    type: String,
+    default: ''
+  },
+  startsAt: {
     type: String,
     default: ''
   },
@@ -34,6 +39,13 @@ let copiedTimer
 
 const severityLabel = computed(() => props.labels.find(label => label.key === 'severity') || null)
 const otherLabels = computed(() => props.labels.filter(label => label.key !== 'severity'))
+const ageText = computed(() => formatStartsAtAge(props.startsAt))
+const ageTitle = computed(() => {
+  if (!ageText.value) {
+    return ''
+  }
+  return 'Firing since ' + new Date(props.startsAt).toLocaleString()
+})
 
 const copyPayload = computed(() => formatAlertForLlm({
   summary: props.summary,
@@ -79,6 +91,12 @@ onUnmounted(() => {
       />
     </button>
     <a :href="href" target="_blank" rel="noopener noreferrer">{{ summary }}</a>
+    <time
+      v-if="ageText"
+      class="alert-age"
+      :datetime="startsAt"
+      :title="ageTitle"
+    >{{ ageText }}</time>
     <button
       v-if="severityLabel"
       type="button"

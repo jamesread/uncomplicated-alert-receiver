@@ -19,3 +19,16 @@ export function formatCompactAge (deltaSeconds) {
 
   return isFuture ? 'in ' + formatted : formatted + ' ago'
 }
+
+export function formatStartsAtAge (startsAt, now = Date.now()) {
+  if (!startsAt) {
+    return ''
+  }
+
+  const started = new Date(startsAt)
+  if (Number.isNaN(started.getTime()) || started.getUTCFullYear() < 1970) {
+    return ''
+  }
+
+  return formatCompactAge(Math.floor((started.getTime() - now) / 1000))
+}

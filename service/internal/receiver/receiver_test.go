@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 )
 
 func resetAlertsForTest(t *testing.T) {
@@ -82,6 +83,45 @@ func TestReceiveWebhook_validPayload(t *testing.T) {
 	}
 	if lastUpdated == 0 {
 		t.Fatal("expected lastUpdated to be set")
+	}
+}
+
+func TestReceiveWebhook_storesStartsAt(t *testing.T) {
+	resetAlertsForTest(t)
+
+	rec := postWebhook(t, `{
+		"alerts": [{
+			"fingerprint": "fp-age",
+			"startsAt": "2026-08-31T12:00:00Z",
+			"annotations": {"summary": "old alert"}
+		}]
+	}`)
+	if rec.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d; body = %q", rec.Code, http.StatusOK, rec.Body.String())
+	}
+
+	want := time.Date(2026, 8, 31, 12, 0, 0, 0, time.UTC)
+
+	alertMu.RLock()
+	stored := alertMap["fp-age"]
+	alertMu.RUnlock()
+	if stored == nil {
+		t.Fatal("expected alert fp-age")
+	}
+	if !stored.StartsAt.Equal(want) {
+		t.Fatalf("StartsAt = %v, want %v", stored.StartsAt, want)
+	}
+
+	req := httptest.NewRequestWithContext(context.Background(), http.MethodGet, "/api/alert_list", nil)
+	listRec := httptest.NewRecorder()
+	GetAllAlerts(listRec, req)
+
+	var res AlertListResponse
+	if err := json.NewDecoder(listRec.Body).Decode(&res); err != nil {
+		t.Fatalf("decode response: %v", err)
+	}
+	if !res.Alerts["fp-age"].StartsAt.Equal(want) {
+		t.Fatalf("list StartsAt = %v, want %v", res.Alerts["fp-age"].StartsAt, want)
 	}
 }
 

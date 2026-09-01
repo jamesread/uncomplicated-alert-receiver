@@ -12,7 +12,8 @@
       },
       "Annotations": {
         "summary": "Failed to scrape state metrics: metrics.k8s.example.lan"
-      }
+      },
+      "startsAt": "2026-08-29T08:12:00Z"
     },
     {
       "Labels": {
@@ -28,7 +29,8 @@
       },
       "Annotations": {
         "summary": "Disk space > 90% on server1.example.lan"
-      }
+      },
+      "startsAt": "2026-09-01T15:40:00Z"
     },
     {
       "Labels": {
@@ -43,7 +45,8 @@
       },
       "Annotations": {
         "summary": "Target down: server2.example.lan"
-      }
+      },
+      "startsAt": "2026-09-01T16:50:00Z"
     },
     {
       "Labels": {
@@ -58,7 +61,8 @@
       },
       "Annotations": {
         "summary": "Target down: server3.example.lan"
-      }
+      },
+      "startsAt": "2026-08-31T17:00:00Z"
     },
     {
       "Labels": {
@@ -73,7 +77,8 @@
       },
       "Annotations": {
         "summary": "Target down: server4.example.lan"
-      }
+      },
+      "startsAt": "2026-09-01T12:00:00Z"
     },
     {
       "Labels": {
@@ -90,7 +95,8 @@
       },
       "Annotations": {
         "summary": "Non-running container: docker.io/grafana/grafana:latest"
-      }
+      },
+      "startsAt": "2026-08-30T09:00:00Z"
     },
     {
       "Labels": {
@@ -107,7 +113,8 @@
       },
       "Annotations": {
         "summary": "Non-running container: docker.io/linuxserver/duckdns"
-      }
+      },
+      "startsAt": "2026-09-01T16:00:00Z"
     },
     {
       "Labels": {
@@ -122,7 +129,8 @@
       },
       "Annotations": {
         "summary": "Utilization on server9 is only 15%"
-      }
+      },
+      "startsAt": "2026-08-25T10:00:00Z"
     },
     {
       "Labels": {
@@ -137,7 +145,8 @@
       },
       "Annotations": {
         "summary": "Time sync on server 1 is behind by 1337 seconds"
-      }
+      },
+      "startsAt": "2026-09-01T16:55:00Z"
     }
   ]
 }

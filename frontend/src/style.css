@@ -173,6 +173,13 @@ main {
   text-decoration: underline;
 }
 
+.alert-age {
+  display: block;
+  margin-top: 0.35em;
+  font-size: small;
+  opacity: 0.75;
+}
+
 .alert .annotation,
 .alert .tag {
   margin-top: 0.75em;

@@ -55,6 +55,7 @@ export function useBoard () {
         key,
         summary: alert.Annotations?.summary || '',
         href: alert.Metadata?.AlertManagerUrl || '#',
+        startsAt: alert.StartsAt || '',
         allLabels: labels,
         annotations: alert.Annotations || {},
         labels: visibleLabels(labels, ignored, drawLabels.value).map(label => ({

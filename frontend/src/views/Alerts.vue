@@ -34,6 +34,7 @@ const board = inject('board')
         :key="alert.key"
         :href="alert.href"
         :summary="alert.summary"
+        :starts-at="alert.startsAt"
         :all-labels="alert.allLabels"
         :annotations="alert.annotations"
         :labels="alert.labels"
