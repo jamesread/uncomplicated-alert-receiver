@@ -1,10 +1,18 @@
 import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
 import { VitePWA } from 'vite-plugin-pwa'
+import { supplementalThemesPlugin } from './vite.supplementalThemes.js'
+
+const backendPort = process.env.PORT || '8080'
+const backendTarget = 'http://localhost:' + backendPort
 
 export default defineConfig({
   plugins: [
+    vue(),
+    supplementalThemesPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
+      includeAssets: ['images/icons/logo.png'],
       manifest: {
         name: 'Uncomplicated Alert Receiver',
         short_name: 'UAR',
@@ -21,25 +29,33 @@ export default defineConfig({
         ]
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}', 'supplemental-themes/**/*.css'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/api/],
         runtimeCaching: []
       }
     })
   ],
+  test: {
+    environment: 'node'
+  },
+  optimizeDeps: {
+    // ThemeSwitcher.vue imports this via a relative path; keep one singleton
+    // so initCustomTheme() in main.js shares state with the selector.
+    exclude: ['picocrank/vue/composables/useCustomTheme.js']
+  },
   server: {
     proxy: {
       '/webUiSettings.json': {
-        target: 'http://localhost:8080',
+        target: backendTarget,
         changeOrigin: true,
-        secure: false,
+        secure: false
       },
       '/api': {
-        target: 'http://localhost:8080',
+        target: backendTarget,
         changeOrigin: true,
-        secure: false,
+        secure: false
       }
-    },
-  },
+    }
+  }
 })
