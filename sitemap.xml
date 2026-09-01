@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+    <url>
+         <loc>https://jamesread.github.io/uncomplicated-alert-receiver/</loc>
+         <lastmod>2026-09-01</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jamesread.github.io/uncomplicated-alert-receiver/configuration/</loc>
+         <lastmod>2026-09-01</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jamesread.github.io/uncomplicated-alert-receiver/install/</loc>
+         <lastmod>2026-09-01</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jamesread.github.io/uncomplicated-alert-receiver/setup/</loc>
+         <lastmod>2026-09-01</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+    <url>
+         <loc>https://jamesread.github.io/uncomplicated-alert-receiver/userguide/</loc>
+         <lastmod>2026-09-01</lastmod>
+         <changefreq>daily</changefreq>
+    </url>
+</urlset>
