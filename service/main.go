@@ -88,6 +88,8 @@ func main() {
 	mux.HandleFunc("/alerts", receiver.ReceiveWebhook)
 	mux.Handle("/", http.FileServer(http.Dir(webUiDir)))
 
+	receiver.StartDemo()
+
 	srv := &http.Server{
 		Addr:              getListenAddress(),
 		Handler:           mux,

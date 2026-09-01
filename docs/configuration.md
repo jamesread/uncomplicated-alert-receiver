@@ -40,6 +40,10 @@ When set to any non-empty value, UAR will show Prometheus labels on each alert b
 
 A comma-separated list of label names that should not be drawn when labels are shown. The default is `alertname,instance,job,severity`.
 
+### `DEMO` Environment Variable
+
+When set to any non-empty value, UAR injects a built-in sample alert payload on startup and again every 3 minutes. Use this for local UI work or demos so you do not need to POST webhook fixtures. Do not enable it on a production receiver that should only show real Alertmanager data.
+
 ## Built-in limits
 
 Webhook requests are capped to protect memory:
