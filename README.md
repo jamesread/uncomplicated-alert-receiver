@@ -16,10 +16,14 @@ UAR is documented on the [UAR Documentation Site](https://jamesread.github.io/un
 
 A robust and reliable Prometheus alert receiver intended for heads up displays. It works without internet access, has no external dependencies, no configuration files, no storage needs, and generally has very few things to go wrong - all it does it receives alerts, and displays them in a simple webpage.
 
-<p align = "center">
-<img src = "var/screenshots/mainpage-laptop_framed.png" />
-<img src = "var/screenshots/mainpage-phone_framed.png" />
-</p>
+![UAR alert board showing firing alerts colour-coded by severity](var/marketing/screenshots/board.png)
+
+| Filter by label | Dark mode | Mobile |
+|---|---|---|
+| ![Board filtered to team=infra](var/marketing/screenshots/filtered.png) | ![Alert board in dark mode](var/marketing/screenshots/board-dark.png) | ![Alert board on a phone](var/marketing/screenshots/phone.png) |
+
+Screenshots use fictional test data and are regenerated with `make screenshots`
+(see [`var/marketing/screenshots`](var/marketing/screenshots/README.md)).
 
 It is designed to supplement other alert receivers, which typically are used for sending notifications, such as email, slack, pagerduty, etc. It is not a replacement for those services, but a supplement to them.
 

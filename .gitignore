@@ -5,3 +5,4 @@ tmp
 uar
 upsilon-alert-receiver
 .cache/
+__pycache__/

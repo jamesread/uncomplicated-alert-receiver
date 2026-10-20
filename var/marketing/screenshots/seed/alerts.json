@@ -1,0 +1,56 @@
+[
+  {
+    "Fingerprint": "demo-01",
+    "startsAgoMinutes": 4,
+    "Labels": {"alertname": "TargetDown", "severity": "critical", "job": "node", "instance": "db-01.example.com:9100", "cluster": "prod-eu", "team": "database", "env": "production"},
+    "Annotations": {"summary": "Target down: db-01.example.com"}
+  },
+  {
+    "Fingerprint": "demo-02",
+    "startsAgoMinutes": 17,
+    "Labels": {"alertname": "HighErrorRate", "severity": "critical", "job": "checkout-api", "instance": "checkout-api.example.com", "cluster": "prod-eu", "service": "checkout-api", "team": "payments", "env": "production"},
+    "Annotations": {"summary": "checkout-api 5xx error rate above 5% for 10 minutes"}
+  },
+  {
+    "Fingerprint": "demo-03",
+    "startsAgoMinutes": 42,
+    "Labels": {"alertname": "DiskSpaceHigh", "severity": "severe", "job": "node", "instance": "files-02.example.com:9100", "mountpoint": "/var", "cluster": "prod-eu", "team": "infra", "env": "production"},
+    "Annotations": {"summary": "Disk space > 90% on files-02.example.com:/var"}
+  },
+  {
+    "Fingerprint": "demo-04",
+    "startsAgoMinutes": 95,
+    "Labels": {"alertname": "KubePodCrashLooping", "severity": "severe", "job": "kube-state-metrics", "instance": "ksm.example.com", "cluster": "prod-us", "namespace": "search", "pod": "indexer-7c9d4", "team": "search", "env": "production"},
+    "Annotations": {"summary": "Pod search/indexer-7c9d4 is crash looping"}
+  },
+  {
+    "Fingerprint": "demo-05",
+    "startsAgoMinutes": 130,
+    "Labels": {"alertname": "CertificateExpiringSoon", "severity": "warning", "job": "blackbox", "instance": "https://shop.example.com", "cluster": "prod-eu", "team": "platform", "env": "production"},
+    "Annotations": {"summary": "TLS certificate for shop.example.com expires in 9 days"}
+  },
+  {
+    "Fingerprint": "demo-07",
+    "startsAgoMinutes": 380,
+    "Labels": {"alertname": "HighMemoryUsage", "severity": "warning", "job": "node", "instance": "ci-runner-03.example.com:9100", "cluster": "tools", "team": "infra", "env": "staging"},
+    "Annotations": {"summary": "Memory usage > 85% on ci-runner-03.example.com"}
+  },
+  {
+    "Fingerprint": "demo-08",
+    "startsAgoMinutes": 900,
+    "Labels": {"alertname": "BackupOverdue", "severity": "important", "job": "backup-exporter", "instance": "backup.example.com", "cluster": "prod-eu", "team": "infra", "env": "production"},
+    "Annotations": {"summary": "Nightly backup of files-02.example.com has not completed"}
+  },
+  {
+    "Fingerprint": "demo-09",
+    "startsAgoMinutes": 1500,
+    "Labels": {"alertname": "ClockSkew", "severity": "important", "job": "node", "instance": "edge-01.example.com:9100", "cluster": "edge", "team": "networking", "env": "production"},
+    "Annotations": {"summary": "Clock skew of 1.2s detected on edge-01.example.com"}
+  },
+  {
+    "Fingerprint": "demo-10",
+    "startsAgoMinutes": 3000,
+    "Labels": {"alertname": "LowUtilization", "severity": "info", "job": "node", "instance": "batch-04.example.com:9100", "cluster": "prod-us", "team": "capacity", "env": "production"},
+    "Annotations": {"summary": "batch-04.example.com has averaged < 5% CPU for 7 days"}
+  }
+]

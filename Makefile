@@ -12,4 +12,7 @@ container:
 devcontainer: container
 	docker run -d --name uar -p 8080:8080 ghcr.io/jamesread/uncomplicated-alert-receiver
 
-.PHONY: default frontend container devcontainer
+screenshots:
+	$(MAKE) -wC var/marketing/screenshots
+
+.PHONY: default frontend container devcontainer screenshots
